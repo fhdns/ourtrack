@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="ourtrack">
+    <file>explorer.png</file>
+  </qresource>
+</RCC>
