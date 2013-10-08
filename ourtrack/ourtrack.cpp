@@ -49,7 +49,8 @@ void ourtrack::GetFindResult()
   {
     return;
   }
-
+  
+  socket->write("abc", 3);
   // Отправляем запрос
   //socket->write(search_query->toLatin1(), search_query->length());
   // ждем

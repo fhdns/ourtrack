@@ -19,8 +19,8 @@ int main(int argc, char *argv[])
         Service.on_starting();
       else if (command == "STOP")
         Service.on_stoping();
-      else if (command == "ONLINE")
-        Service.on_online();
+      else if (command == "STATUS")
+        Service.on_status();
       
       command = in.readLine();
     }

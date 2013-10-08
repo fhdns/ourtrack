@@ -6,8 +6,6 @@
 #include <QByteArray>
 #include <QDebug>
 
-class QTcpServer;
-
 class ourtrackserv : public QObject
 {
   Q_OBJECT
@@ -16,17 +14,19 @@ public:
     ourtrackserv(QObject *parent = 0);
     ~ourtrackserv();
     
-public slots:
     void on_starting();
     void on_stoping();
+    void on_status();
+
+private slots:
     void newuser();
     void slotReadClient();
-    void on_online();
+
+    inline bool SocketCheck();
     
 private:
     quint64 port;
     QTcpServer *tcpServer;
-    int server_status;
     QMap<int,QTcpSocket *> SClients;    
 };
 

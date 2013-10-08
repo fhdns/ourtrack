@@ -5,8 +5,6 @@
 #include <vector>
 #include <QtNetwork>
 
-//#include <QAbstractSocket>
-
 using namespace std;
 
 #define COL_COUNT   7

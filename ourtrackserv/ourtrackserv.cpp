@@ -3,58 +3,63 @@
 ourtrackserv::ourtrackserv(QObject *parent)
   : QObject(parent)
 {
-  server_status = 0;
+  tcpServer = new QTcpServer(this);
   port = 7777;
 }
 
 ourtrackserv::~ourtrackserv()
 {
+  on_stoping();
+  delete tcpServer;
 }
 
 void ourtrackserv::on_starting()
 {
-  if (server_status)
+  if (!tcpServer)
+  {    
+    qDebug() << "QTcpServer does not exist";
+    return;
+  }
+  else if (tcpServer->isListening())
   {
-    qDebug() << "Server already running";
+    qDebug() << "QTcpServer already is running";
     return;
   }
 
-  tcpServer = new QTcpServer(this);
-  connect(tcpServer, SIGNAL(newConnection()), this, SLOT(newuser()));
-  if (!tcpServer->listen(QHostAddress::Any, port) && !server_status)
+  tcpServer->newConnection();
+
+  if (tcpServer->listen(QHostAddress::Any, port))
   {
-    qDebug() <<  QObject::tr("Unable to start the server: %1.").arg(tcpServer->errorString());
+    connect(tcpServer, SIGNAL(newConnection()), this, SLOT(newuser()));
+    qDebug() << QString::fromUtf8("Server started!");
+    qDebug() << "TCPSocket listen on port " << tcpServer->serverPort();
   }
   else
   {
-    server_status = 1;
-    qDebug() << tcpServer->isListening() << "TCPSocket listen on port";
-    qDebug() << QString::fromUtf8("Server started!");
+    qDebug() <<  QObject::tr("Unable to start the server: %1.").arg(tcpServer->errorString());
   }
 }
 
 void ourtrackserv::on_stoping()
 {
-  if(server_status)
-  {
-    foreach(int i, SClients.keys())
-    {
-      QTextStream os(SClients[i]);
-      os.setAutoDetectUnicode(true);
-      os << QDateTime::currentDateTime().toString() << "\n";
-      SClients[i]->close();
-      SClients.remove(i);
-    }
+  if(!SocketCheck()) return;
 
-    tcpServer->close();
-    qDebug() << QString::fromUtf8("Server is shutdown!");
-    server_status = 0;
+  foreach(int i, SClients.keys())
+  {
+    QTextStream os(SClients[i]);
+    os.setAutoDetectUnicode(true);
+    os << QDateTime::currentDateTime().toString() << "\n";
+    SClients[i]->close();
+    SClients.remove(i);
   }
+
+  tcpServer->close();
+  qDebug() << QString::fromUtf8("Server is shutdown!");
 }
 
 void ourtrackserv::newuser()
 {
-  if(server_status)
+  while(tcpServer->hasPendingConnections())
   {
     QTcpSocket *clientSocket = tcpServer->nextPendingConnection();
     int idusersocs = clientSocket->socketDescriptor();
@@ -84,7 +89,26 @@ void ourtrackserv::slotReadClient()
   SClients.remove(idusersocs);
 }
 
-void ourtrackserv::on_online()
-{
-    qDebug() << QString::fromUtf8("Online users: %1").arg(SClients.size());
+void ourtrackserv::on_status()
+{  
+  if(!SocketCheck()) return;
+  qDebug() << "Online users: "    << SClients.size();
+  qDebug() << "Is listening: "    << tcpServer->isListening();
+  qDebug() << "Server Address: "  << tcpServer->serverAddress();
+  qDebug() << "Server Port: "     << tcpServer->serverPort();
+}
+
+inline bool ourtrackserv::SocketCheck()
+{  
+  if (!tcpServer)
+  {
+    qDebug() << "QTcpServer does not exist";
+    return false;
+  }
+  else if (!tcpServer->isListening())
+  {
+    qDebug() << "QTcpServer is not running";
+    return false;
+  }
+  return true;
 }
