@@ -5,10 +5,12 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     ourtrack w;
+    
+    //sock->connectToHost("localhost",7777);
+    //sock = new QTcpSocket(a);
 
-    //MainList *List = new MainList(w.ui.TableResult, w.ui.EditFind);
-    //QObject::connect(w.ui.ButtonFind, SIGNAL(clicked()), &w, SLOT(List->ShowList()));
-    //QObject::connect(w.ui.ButtonFind, SIGNAL(clicked()), &List, SLOT(ShowList()));
+    /*if (sock->waitForConnected(1000))
+     qDebug("Connected!");*/
 
     w.show();
     return a.exec();

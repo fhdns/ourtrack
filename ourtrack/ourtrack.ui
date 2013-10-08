@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>400</height>
+    <width>800</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -49,13 +49,13 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>75</width>
+          <width>125</width>
           <height>23</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>75</width>
+          <width>125</width>
           <height>23</height>
          </size>
         </property>
@@ -64,6 +64,10 @@
         </property>
         <property name="text">
          <string>Find</string>
+        </property>
+        <property name="icon">
+         <iconset resource="ourtrack.qrc">
+          <normaloff>:/ourtrack/camera.png</normaloff>:/ourtrack/camera.png</iconset>
         </property>
         <property name="autoDefault">
          <bool>true</bool>
@@ -101,16 +105,24 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>600</width>
+     <width>800</width>
      <height>21</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menu">
+   <widget class="QMenu" name="menuMain">
     <property name="title">
      <string>Главная</string>
     </property>
+    <addaction name="menuFind"/>
    </widget>
-   <addaction name="menu"/>
+   <widget class="QMenu" name="menuOptions">
+    <property name="title">
+     <string>Опции</string>
+    </property>
+    <addaction name="menuSettings"/>
+   </widget>
+   <addaction name="menuMain"/>
+   <addaction name="menuOptions"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -132,10 +144,37 @@
     <bool>false</bool>
    </attribute>
   </widget>
+  <action name="menuFind">
+   <property name="text">
+    <string>Найти</string>
+   </property>
+  </action>
+  <action name="menuSettings">
+   <property name="text">
+    <string>Настройки</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
   <include location="ourtrack.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>EditFind</sender>
+   <signal>returnPressed()</signal>
+   <receiver>ButtonFind</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>361</x>
+     <y>60</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>789</x>
+     <y>65</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

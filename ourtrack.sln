@@ -1,7 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ourtrack", "ourtrack\ourtrack.vcxproj", "{7DE78E55-EBC3-4DB3-89CE-25B08914BB3A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ourtrack", "ourtrack\ourtrack.vcxproj", "{DE130B68-D889-4189-B8AC-E1CF73D2507E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ourtrackserv", "ourtrackserv\ourtrackserv.vcxproj", "{07DCEB35-04CE-4BF7-8F97-6935F19148AA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -9,10 +11,14 @@ Global
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{7DE78E55-EBC3-4DB3-89CE-25B08914BB3A}.Debug|Win32.ActiveCfg = Debug|Win32
-		{7DE78E55-EBC3-4DB3-89CE-25B08914BB3A}.Debug|Win32.Build.0 = Debug|Win32
-		{7DE78E55-EBC3-4DB3-89CE-25B08914BB3A}.Release|Win32.ActiveCfg = Release|Win32
-		{7DE78E55-EBC3-4DB3-89CE-25B08914BB3A}.Release|Win32.Build.0 = Release|Win32
+		{DE130B68-D889-4189-B8AC-E1CF73D2507E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DE130B68-D889-4189-B8AC-E1CF73D2507E}.Debug|Win32.Build.0 = Debug|Win32
+		{DE130B68-D889-4189-B8AC-E1CF73D2507E}.Release|Win32.ActiveCfg = Release|Win32
+		{DE130B68-D889-4189-B8AC-E1CF73D2507E}.Release|Win32.Build.0 = Release|Win32
+		{07DCEB35-04CE-4BF7-8F97-6935F19148AA}.Debug|Win32.ActiveCfg = Debug|Win32
+		{07DCEB35-04CE-4BF7-8F97-6935F19148AA}.Debug|Win32.Build.0 = Debug|Win32
+		{07DCEB35-04CE-4BF7-8F97-6935F19148AA}.Release|Win32.ActiveCfg = Release|Win32
+		{07DCEB35-04CE-4BF7-8F97-6935F19148AA}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
