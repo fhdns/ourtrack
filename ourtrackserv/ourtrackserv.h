@@ -16,10 +16,10 @@ public:
     
     void on_starting();
     void on_stoping();
-    void on_status();
+    //void on_status();
 
 private slots:
-    void newuser();
+    void slotNewUser();
     void slotReadClient();
 
     inline bool SocketCheck();

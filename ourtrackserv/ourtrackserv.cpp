@@ -26,11 +26,9 @@ void ourtrackserv::on_starting()
     return;
   }
 
-  tcpServer->newConnection();
-
   if (tcpServer->listen(QHostAddress::Any, port))
   {
-    connect(tcpServer, SIGNAL(newConnection()), this, SLOT(newuser()));
+    connect(tcpServer, SIGNAL(newConnection()), this, SLOT(slotNewUser()));
     qDebug() << QString::fromUtf8("Server started!");
     qDebug() << "TCPSocket listen on port " << tcpServer->serverPort();
   }
@@ -57,7 +55,7 @@ void ourtrackserv::on_stoping()
   qDebug() << QString::fromUtf8("Server is shutdown!");
 }
 
-void ourtrackserv::newuser()
+void ourtrackserv::slotNewUser()
 {
   while(tcpServer->hasPendingConnections())
   {
@@ -84,19 +82,20 @@ void ourtrackserv::slotReadClient()
     << QDateTime::currentDateTime().toString() << "\n";
 
   //ui->textinfo->append("ReadClient:"+clientSocket->readAll()+"\n\r");
+  qDebug() << clientSocket->readAll();
 
   clientSocket->close();
   SClients.remove(idusersocs);
 }
 
-void ourtrackserv::on_status()
-{  
-  if(!SocketCheck()) return;
-  qDebug() << "Online users: "    << SClients.size();
-  qDebug() << "Is listening: "    << tcpServer->isListening();
-  qDebug() << "Server Address: "  << tcpServer->serverAddress();
-  qDebug() << "Server Port: "     << tcpServer->serverPort();
-}
+//void ourtrackserv::on_status()
+//{  
+//  if(!SocketCheck()) return;
+//  qDebug() << "Online users: "    << SClients.size();
+//  qDebug() << "Is listening: "    << tcpServer->isListening();
+//  qDebug() << "Server Address: "  << tcpServer->serverAddress();
+//  qDebug() << "Server Port: "     << tcpServer->serverPort();
+//}
 
 inline bool ourtrackserv::SocketCheck()
 {  
