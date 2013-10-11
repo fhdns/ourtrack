@@ -43,25 +43,8 @@ void ourtrack::ShowList()
 {
   QTableWidget *table = ui.TableResult;
 
-  //if (!table) return;
-  //if (!items.size()) return;
-
-  QByteArray buffer;
-  QDataStream strm(&buffer, QIODevice::ReadWrite);
-
-  MainListItem *b = new MainListItem;
-  b->Data[0] = "fôûâddsfs";
-  b->Data[1] = "fddsfs";
-  b->Data[2] = "fddsfs";
-  b->Data[3] = "fddsfs";
-  items.push_back(*b);
-  items.push_back(*b);
-  items.push_back(*b);
-  items.push_back(*b);
-
-  QByteArray backup = Serialize();
-  items.clear();
-  DeSerialize(backup);
+  if (!table) return;
+  if (!items.size()) return;
 
   table->clear();
   table->setColumnCount(COL_COUNT);
