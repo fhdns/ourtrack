@@ -2,14 +2,6 @@
 
 //-------------------------------------------------------------------
 
-//"torwikignoueupfm.onion" "25jdsgtkkvt4kkk5.onion" "localhost"
-#define SERVER_HOST           "localhost"
-#define SERVER_PORT           7777
-#define TIME_WAIT_FOR_CONNECT 100000
-#define TIME_WAIT_FOR_WRITTEN 100000
-
-//-------------------------------------------------------------------
-
 ourtrack::ourtrack(QWidget *parent)
   : QMainWindow(parent)
 {
@@ -18,7 +10,7 @@ ourtrack::ourtrack(QWidget *parent)
 
   // Сокет для соединения с сервером
   socket = new QTcpSocket(this);
-  connect(socket,SIGNAL(readyRead()),this, SLOT(slotReadServer()));
+  connect(socket, SIGNAL(readyRead()), this, SLOT(slotReadServer()));
   // Привязка прокси-сервера к сокету
 #ifdef PROXY_SERVER
   proxy_srv = new ProxyServer(socket);
@@ -30,6 +22,7 @@ ourtrack::ourtrack(QWidget *parent)
 
 ourtrack::~ourtrack()
 {
+  socket->close();
   delete socket;
 #ifdef PROXY_SERVER
   proxy_srv->stop();
@@ -44,7 +37,11 @@ void ourtrack::ShowList()
   QTableWidget *table = ui.TableResult;
 
   if (!table) return;
-  if (!items.size()) return;
+  if (!items.size())
+  {
+    table->clear();
+    return;
+  }
 
   table->clear();
   table->setColumnCount(COL_COUNT);
@@ -66,7 +63,6 @@ void ourtrack::ShowList()
 
 void ourtrack::SendFindQuery()
 {
-  ShowList(); return;
   // Забираем запрос с формы
   QString search_query = ui.EditFind->text();
   QByteArray sbuf(search_query.toStdString().c_str());
@@ -81,14 +77,11 @@ void ourtrack::SendFindQuery()
 
   // Отправляем наш поисковый запрос
   socket->write(sbuf);
-  if (socket->waitForBytesWritten(TIME_WAIT_FOR_WRITTEN))
+  if (!socket->waitForBytesWritten(TIME_WAIT_FOR_WRITTEN))
   {
     socket->close();
     return;
   }
-
-  // Закрываем сокет (кэп одобрил)
-  socket->close();
 }
 
 //-------------------------------------------------------------------
@@ -99,9 +92,10 @@ void ourtrack::slotReadServer()
   QTcpSocket* socket = (QTcpSocket*)sender();
 
   // Получаем данные от сервера и десериализуем в вектор элементов списка
-  QByteArray recvbuff = socket->readAll();
+  QByteArray recvbuff;
+  recvbuff = socket->readAll();
   DeSerialize(recvbuff);
-
+  
   socket->close();
   ShowList();
 }

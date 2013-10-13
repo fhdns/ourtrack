@@ -29,8 +29,6 @@ bool ProxyServer::start()
 bool ProxyServer::stop()
 {   
   ProcServ.terminate();
-  QNetworkProxy proxy_null;
-  socket->setProxy(proxy_null);
   return 1;
 }
 

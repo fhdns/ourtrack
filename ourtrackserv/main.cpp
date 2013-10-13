@@ -1,6 +1,8 @@
 #include <QtCore/QCoreApplication>
 #include "ourtrackserv.h"
 
+//-------------------------------------------------------------------
+
 int main(int argc, char *argv[])
 {
   QCoreApplication a(argc, argv);
@@ -8,3 +10,5 @@ int main(int argc, char *argv[])
   Service.on_starting();
   return a.exec();
 }
+
+//-------------------------------------------------------------------

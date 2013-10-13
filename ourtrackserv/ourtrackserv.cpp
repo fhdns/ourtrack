@@ -1,17 +1,26 @@
 #include "ourtrackserv.h"
+#include <QByteArray>
+
+//-------------------------------------------------------------------
 
 ourtrackserv::ourtrackserv(QObject *parent)
   : QObject(parent)
 {
+  db_ctrl.connect_db();
   tcpServer = new QTcpServer(this);
   port = 7777;
 }
 
+//-------------------------------------------------------------------
+
 ourtrackserv::~ourtrackserv()
 {
+  db_ctrl.disconnect_db();
   on_stoping();
   delete tcpServer;
 }
+
+//-------------------------------------------------------------------
 
 void ourtrackserv::on_starting()
 {
@@ -29,14 +38,16 @@ void ourtrackserv::on_starting()
   if (tcpServer->listen(QHostAddress::Any, port))
   {
     connect(tcpServer, SIGNAL(newConnection()), this, SLOT(slotNewUser()));
-    qDebug() << QString::fromUtf8("Server started!");
     qDebug() << "TCPSocket listen on port " << tcpServer->serverPort();
+    qDebug() << "Server started!";
   }
   else
   {
     qDebug() <<  QObject::tr("Unable to start the server: %1.").arg(tcpServer->errorString());
   }
 }
+
+//-------------------------------------------------------------------
 
 void ourtrackserv::on_stoping()
 {
@@ -55,6 +66,8 @@ void ourtrackserv::on_stoping()
   qDebug() << QString::fromUtf8("Server is shutdown!");
 }
 
+//-------------------------------------------------------------------
+
 void ourtrackserv::slotNewUser()
 {
   while(tcpServer->hasPendingConnections())
@@ -68,25 +81,33 @@ void ourtrackserv::slotNewUser()
   }
 }
 
+//-------------------------------------------------------------------
+
 void ourtrackserv::slotReadClient()
 {
   QTcpSocket* clientSocket = (QTcpSocket*)sender();
   int idusersocs = clientSocket->socketDescriptor();
   QTextStream os(clientSocket);
-  os.setAutoDetectUnicode(true);
 
-  os << "HTTP/1.0 200 Ok\r\n"
-    "Content-Type: text/html; charset=\"utf-8\"\r\n"
-    "\r\n"
-    "<h1>Nothing to see here</h1>\n"
-    << QDateTime::currentDateTime().toString() << "\n";
+  QString search_query = clientSocket->readAll();
+  qDebug() << search_query;
 
-  //ui->textinfo->append("ReadClient:"+clientSocket->readAll()+"\n\r");
-  qDebug() << clientSocket->readAll();
+  QVector<MainListItem> search_results;
+  db_ctrl.GetFindResult(search_query, search_results);
+
+  clientSocket->write(Serialize(search_results));
+  if (clientSocket->waitForBytesWritten())
+  {
+    clientSocket->close();
+    SClients.remove(idusersocs);
+    return;
+  }
 
   clientSocket->close();
   SClients.remove(idusersocs);
 }
+
+//-------------------------------------------------------------------
 
 //void ourtrackserv::on_status()
 //{  
@@ -96,6 +117,8 @@ void ourtrackserv::slotReadClient()
 //  qDebug() << "Server Address: "  << tcpServer->serverAddress();
 //  qDebug() << "Server Port: "     << tcpServer->serverPort();
 //}
+
+//-------------------------------------------------------------------
 
 inline bool ourtrackserv::SocketCheck()
 {  
@@ -111,3 +134,4 @@ inline bool ourtrackserv::SocketCheck()
   }
   return true;
 }
+//-------------------------------------------------------------------

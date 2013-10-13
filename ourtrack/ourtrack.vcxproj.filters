@@ -59,7 +59,7 @@
     <ClCompile Include="GeneratedFiles\Release\moc_proxyserver.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="Serialization.cpp">
+    <ClCompile Include="serialization.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -80,6 +80,12 @@
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_ourtrack.h">
       <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="globalsettings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mainlistitem.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
