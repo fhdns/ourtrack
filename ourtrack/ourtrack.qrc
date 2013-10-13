@@ -1,8 +1,6 @@
 <RCC>
-  <qresource prefix="ourtrack">
-    <file>feed.png</file>
-    <file>pacman.png</file>
-    <file>camera.png</file>
-    <file>explorer.png</file>
-  </qresource>
+    <qresource prefix="/ourtrack">
+        <file>camera.png</file>
+        <file>explorer.png</file>
+    </qresource>
 </RCC>

@@ -8,10 +8,10 @@ ourtrack::ourtrack(QWidget *parent)
   ui.setupUi(this);    
   QObject::connect(ui.ButtonFind, SIGNAL(clicked()), this, SLOT(SendFindQuery()));
 
-  // Ñîêåò äëÿ ñîåäèíåíèÿ ñ ñåðâåðîì
+  // Ð¡Ð¾ÐºÐµÑ‚ Ð´Ð»Ñ ÑÐ¾ÐµÐ´Ð¸Ð½ÐµÐ½Ð¸Ñ Ñ ÑÐµÑ€Ð²ÐµÑ€Ð¾Ð¼
   socket = new QTcpSocket(this);
   connect(socket, SIGNAL(readyRead()), this, SLOT(slotReadServer()));
-  // Ïðèâÿçêà ïðîêñè-ñåðâåðà ê ñîêåòó
+  // ÐŸÑ€Ð¸Ð²ÑÐ·ÐºÐ° Ð¿Ñ€Ð¾ÐºÑÐ¸-ÑÐµÑ€Ð²ÐµÑ€Ð° Ðº ÑÐ¾ÐºÐµÑ‚Ñƒ
 #ifdef PROXY_SERVER
   proxy_srv = new ProxyServer(socket);
   proxy_srv->start();
@@ -63,11 +63,11 @@ void ourtrack::ShowList()
 
 void ourtrack::SendFindQuery()
 {
-  // Çàáèðàåì çàïðîñ ñ ôîðìû
+  // Ð—Ð°Ð±Ð¸Ñ€Ð°ÐµÐ¼ Ð·Ð°Ð¿Ñ€Ð¾Ñ Ñ Ñ„Ð¾Ñ€Ð¼Ñ‹
   QString search_query = ui.EditFind->text();
   QByteArray sbuf(search_query.toStdString().c_str());
 
-  // Ñîåäèíÿåìñÿ ñ ñåðâåðîì
+  // Ð¡Ð¾ÐµÐ´Ð¸Ð½ÑÐµÐ¼ÑÑ Ñ ÑÐµÑ€Ð²ÐµÑ€Ð¾Ð¼
   socket->connectToHost(SERVER_HOST, SERVER_PORT);
   if (!socket->waitForConnected(TIME_WAIT_FOR_CONNECT))
   {
@@ -75,7 +75,7 @@ void ourtrack::SendFindQuery()
     return;
   }  
 
-  // Îòïðàâëÿåì íàø ïîèñêîâûé çàïðîñ
+  // ÐžÑ‚Ð¿Ñ€Ð°Ð²Ð»ÑÐµÐ¼ Ð½Ð°Ñˆ Ð¿Ð¾Ð¸ÑÐºÐ¾Ð²Ñ‹Ð¹ Ð·Ð°Ð¿Ñ€Ð¾Ñ
   socket->write(sbuf);
   if (!socket->waitForBytesWritten(TIME_WAIT_FOR_WRITTEN))
   {
@@ -88,10 +88,10 @@ void ourtrack::SendFindQuery()
 
 void ourtrack::slotReadServer()
 {
-  // Ïîëó÷àåì ñîêåò òîãî, êòî âûçâàë ìåòîä
+  // ÐŸÐ¾Ð»ÑƒÑ‡Ð°ÐµÐ¼ ÑÐ¾ÐºÐµÑ‚ Ñ‚Ð¾Ð³Ð¾, ÐºÑ‚Ð¾ Ð²Ñ‹Ð·Ð²Ð°Ð» Ð¼ÐµÑ‚Ð¾Ð´
   QTcpSocket* socket = (QTcpSocket*)sender();
 
-  // Ïîëó÷àåì äàííûå îò ñåðâåðà è äåñåðèàëèçóåì â âåêòîð ýëåìåíòîâ ñïèñêà
+  // ÐŸÐ¾Ð»ÑƒÑ‡Ð°ÐµÐ¼ Ð´Ð°Ð½Ð½Ñ‹Ðµ Ð¾Ñ‚ ÑÐµÑ€Ð²ÐµÑ€Ð° Ð¸ Ð´ÐµÑÐµÑ€Ð¸Ð°Ð»Ð¸Ð·ÑƒÐµÐ¼ Ð² Ð²ÐµÐºÑ‚Ð¾Ñ€ ÑÐ»ÐµÐ¼ÐµÐ½Ñ‚Ð¾Ð² ÑÐ¿Ð¸ÑÐºÐ°
   QByteArray recvbuff;
   recvbuff = socket->readAll();
   DeSerialize(recvbuff);
