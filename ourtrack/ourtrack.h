@@ -3,15 +3,9 @@
 
 #include "ui_ourtrack.h"
 #include "proxyserver.h"
+#include "mainlistitem.h"
 #include <QVector>
-
-//-------------------------------------------------------------------
-
-// Элемент поисковой выдачи
-struct MainListItem
-{
-  QString Data[COL_COUNT];
-};
+#include <QMessageBox>
 
 //-------------------------------------------------------------------
 
@@ -26,9 +20,11 @@ public:
 public slots:
   void SendFindQuery();
   void slotReadServer();
-  void ShowList();
 
 private:  
+  
+  // Вывод вектора поисковой выдачи в tableView
+  void ShowList();
 
   // Сериализация и десериализация предметов списка ( представление вектора items в виде QByteArray )
   //QByteArray  Serialize();
@@ -36,6 +32,7 @@ private:
 
   // Пользовательский интерфейс
   Ui::ourtrackClass     ui;
+  QMessageBox           msgBox;
 
   // Список элементов поисковой выдачи
   QVector<MainListItem> items;

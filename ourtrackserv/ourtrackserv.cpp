@@ -90,6 +90,15 @@ void ourtrackserv::slotReadClient()
   QTextStream os(clientSocket);
 
   QString search_query = clientSocket->readAll();
+
+  // Если длина запроса меньше требуемой, то предварительно закрываем сокет
+  if (!SearchQueryCheck(search_query))
+  {    
+    clientSocket->close();
+    SClients.remove(idusersocs);
+    return;
+  }
+
   qDebug() << search_query;
 
   QVector<MainListItem> search_results;
@@ -125,13 +134,22 @@ inline bool ourtrackserv::SocketCheck()
   if (!tcpServer)
   {
     qDebug() << "QTcpServer does not exist";
-    return false;
+    return 0;
   }
   else if (!tcpServer->isListening())
   {
     qDebug() << "QTcpServer is not running";
-    return false;
+    return 0;
   }
-  return true;
+  return 1;
+}
+//-------------------------------------------------------------------
+
+inline bool ourtrackserv::SearchQueryCheck(QString &query)
+{  
+  if (query.length() < MIN_CHAR_SEARCH)
+    return 0;
+
+  return 1;
 }
 //-------------------------------------------------------------------

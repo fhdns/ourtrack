@@ -26,6 +26,7 @@ private slots:
 
 private:
   inline bool SocketCheck();
+  inline bool SearchQueryCheck(QString &query);
   QByteArray Serialize(QVector<MainListItem> &items);
 
   DatabaseControl db_ctrl;  

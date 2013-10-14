@@ -5,8 +5,11 @@
 // Настройки поисковой выдачи
 
 // Столбцы поисковой выдачи
-#define COL_COUNT   7
-#define COL_HEADER  "Category" << "Name" << "Date" << "Size" << "SE" << "LE" << "Magnet"
+#define COL_COUNT         7
+#define COL_HEADER        "Category" << "Name" << "Date" << "Size" << "SE" << "LE" << "Magnet"
+
+// Минимум букв для поисковой строки
+#define MIN_CHAR_SEARCH   4 
 
 //-------------------------------------------------------------------
 // Настройки соединения с сервером
@@ -21,7 +24,7 @@
 // Настройки работы в анонимной сети (через прокси-сервер)
 
 // Подключение, отключение работы через прокси (для отключения - закомментировать следующую строку)
-//#define PROXY_SERVER
+#define PROXY_SERVER
 #define PROXY_HOST            "127.0.0.1"
 #define PROXY_PORT            9050
 #define PROXY_SRV_PATH        "proxy_srv//tor//tor.exe"

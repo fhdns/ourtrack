@@ -37,11 +37,6 @@ void ourtrack::ShowList()
   QTableWidget *table = ui.TableResult;
 
   if (!table) return;
-  if (!items.size())
-  {
-    table->clear();
-    return;
-  }
 
   table->clear();
   table->setColumnCount(COL_COUNT);
@@ -65,6 +60,16 @@ void ourtrack::SendFindQuery()
 {
   // Забираем запрос с формы
   QString search_query = ui.EditFind->text();
+
+  // Если запрос меньше требуемого размера, говорим ему об этом
+  if (search_query.length() < MIN_CHAR_SEARCH)
+  {    
+    msgBox.setText("Минимальная длина поискового запроса - " + QString::number(MIN_CHAR_SEARCH) + " символа(ов)");
+    msgBox.setIcon(QMessageBox::Icon::Information);
+    msgBox.exec();
+    return;
+  }
+
   QByteArray sbuf(search_query.toStdString().c_str());
 
   // Соединяемся с сервером
