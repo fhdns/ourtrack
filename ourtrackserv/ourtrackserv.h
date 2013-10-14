@@ -30,7 +30,6 @@ private:
   QByteArray Serialize(QVector<MainListItem> &items);
 
   DatabaseControl db_ctrl;  
-  quint64 port;
   QTcpServer *tcpServer;
   QMap<int,QTcpSocket *> SClients;
 };

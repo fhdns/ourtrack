@@ -4,6 +4,8 @@
 // Минимум букв в поисковом запросе
 #define MIN_CHAR_SEARCH   4 
 
+#define LISTEN_PORT       7777
+
 // Настройка базы данных
 #define DB_DRIVER     "QMYSQL"
 #define DB_NAME       "ourtrack"

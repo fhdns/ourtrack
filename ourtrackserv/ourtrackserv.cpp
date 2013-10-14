@@ -8,7 +8,6 @@ ourtrackserv::ourtrackserv(QObject *parent)
 {
   db_ctrl.connect_db();
   tcpServer = new QTcpServer(this);
-  port = 7777;
 }
 
 //-------------------------------------------------------------------
@@ -35,7 +34,7 @@ void ourtrackserv::on_starting()
     return;
   }
 
-  if (tcpServer->listen(QHostAddress::Any, port))
+  if (tcpServer->listen(QHostAddress::Any, LISTEN_PORT))
   {
     connect(tcpServer, SIGNAL(newConnection()), this, SLOT(slotNewUser()));
     qDebug() << "TCPSocket listen on port " << tcpServer->serverPort();
