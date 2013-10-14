@@ -22,6 +22,8 @@ public slots:
   void slotReadServer();
 
 private:  
+  // Загрузка конфигурации
+  bool ConfLoad();
   
   // Вывод вектора поисковой выдачи в tableView
   void ShowList();
@@ -40,6 +42,16 @@ private:
   // Работа с сетью
   QTcpSocket            *socket;
   ProxyServer           *proxy_srv;
+  
+  // Подключение к серверу
+  // Доступные адреса расположения сервера (из файла SERVER_HOSTS_PATH)
+  struct host_info
+  {
+    QString host;
+    quint64 port;
+  };
+  QVector<host_info> avaible_hosts;
+  host_info GetRandomHost();
 };
 
 //-------------------------------------------------------------------

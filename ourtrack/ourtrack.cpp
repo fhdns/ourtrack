@@ -1,4 +1,6 @@
 #include "ourtrack.h"
+#include <QFile>
+#include <QList>
 
 //-------------------------------------------------------------------
 
@@ -7,6 +9,9 @@ ourtrack::ourtrack(QWidget *parent)
 {
   ui.setupUi(this);    
   QObject::connect(ui.ButtonFind, SIGNAL(clicked()), this, SLOT(SendFindQuery()));
+
+  // Загружаем конфигурацию
+  ConfLoad();
 
   // Сокет для соединения с сервером
   socket = new QTcpSocket(this);
@@ -32,6 +37,31 @@ ourtrack::~ourtrack()
 
 //-------------------------------------------------------------------
 
+bool ourtrack::ConfLoad()
+{
+  // Открываем файл с со списком достпных адресов серверов
+  QFile hosts(SERVER_HOSTS_PATH);
+  if(!hosts.open(QIODevice::ReadWrite))
+  {
+    return 0;
+  }
+
+  while (!hosts.atEnd())
+  {
+    char sep = 0x3A; // ":"
+    QList<QByteArray> current_host_info = hosts.readLine().split(sep);  
+
+    host_info addr;
+    addr.host = current_host_info.at(0);
+    addr.port = current_host_info.at(1).toULongLong();
+    avaible_hosts.push_back(addr);
+  }
+
+  hosts.close();
+  return 1;
+}
+
+//-------------------------------------------------------------------
 void ourtrack::ShowList()
 {
   QTableWidget *table = ui.TableResult;
@@ -65,7 +95,7 @@ void ourtrack::SendFindQuery()
   if (search_query.length() < MIN_CHAR_SEARCH)
   {    
     msgBox.setText("Минимальная длина поискового запроса - " + QString::number(MIN_CHAR_SEARCH) + " символа(ов)");
-    msgBox.setIcon(QMessageBox::Icon::Information);
+    msgBox.setIcon(QMessageBox::Information);
     msgBox.exec();
     return;
   }
@@ -73,7 +103,8 @@ void ourtrack::SendFindQuery()
   QByteArray sbuf(search_query.toStdString().c_str());
 
   // Соединяемся с сервером
-  socket->connectToHost(SERVER_HOST, SERVER_PORT);
+  host_info server_addr = GetRandomHost();
+  socket->connectToHost(server_addr.host, server_addr.port);
   if (!socket->waitForConnected(TIME_WAIT_FOR_CONNECT))
   {
     socket->close();
@@ -105,4 +136,14 @@ void ourtrack::slotReadServer()
   ShowList();
 }
 
+//-------------------------------------------------------------------
+
+ourtrack::host_info ourtrack::GetRandomHost()
+{
+  quint16 rnd = qrand();
+  if (rnd > avaible_hosts.size())
+    rnd %= avaible_hosts.size();
+
+  return avaible_hosts[rnd];
+}
 //-------------------------------------------------------------------
