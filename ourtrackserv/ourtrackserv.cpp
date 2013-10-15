@@ -54,9 +54,6 @@ void ourtrackserv::on_stoping()
 
   foreach(int i, SClients.keys())
   {
-    QTextStream os(SClients[i]);
-    os.setAutoDetectUnicode(true);
-    os << QDateTime::currentDateTime().toString() << "\n";
     SClients[i]->close();
     SClients.remove(i);
   }
@@ -99,17 +96,16 @@ void ourtrackserv::slotReadClient()
   }
 
   qDebug() << search_query;
+  QVector<MainListItem> search_results;                 // результат выборки, которы будет отпарвлен клиенту
+  db_ctrl.GetFindResult(search_query, search_results);  // функция выборки, заполяет search_results
 
-  QVector<MainListItem> search_results;
-  db_ctrl.GetFindResult(search_query, search_results);
-
-  QByteArray sbuff = Serialize(search_results);
+  QByteArray sbuff = Serialize(search_results);         // сериализуем в пригодный для отправки буффер
   clientSocket->write(sbuff);
-  if (clientSocket->waitForBytesWritten(300000))
+
+  if (clientSocket->waitForBytesWritten())
   {
-    clientSocket->close();
-    SClients.remove(idusersocs);
-    return;
+    qDebug() << "Send Time limit. size: " << QString::number(sbuff.size())
+             << " client: " << QString::number(idusersocs);
   }
 
   clientSocket->close();

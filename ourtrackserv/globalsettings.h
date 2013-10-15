@@ -6,8 +6,11 @@
 
 #define LISTEN_PORT     7777
 
+// Макисмум попыток ожидания true от waitforwrite
+#define MAX_TRY_WAIT    50
+
 // Лимит количества результатов запрос
-#define QUERY_LIMIT     10
+#define QUERY_LIMIT     1050
 
 // Настройка базы данных
 #define DB_DRIVER       "QMYSQL"
