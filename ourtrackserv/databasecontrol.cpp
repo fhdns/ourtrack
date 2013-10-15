@@ -2,6 +2,7 @@
 #include <QtSql\QSqlError>
 #include <QtSql\QSqlQuery>
 #include <QtSql\QSqlRecord>
+#include <QRegularExpression>
 #include <QDebug>
 
 DatabaseControl::DatabaseControl(QObject *parent)
@@ -41,12 +42,12 @@ void DatabaseControl::disconnect_db()
   qDebug() << DB_DRIVER<< "Database disconnected";
 }
 
-void DatabaseControl::GetFindResult(QString &search_query, QVector<MainListItem> &result)
+void DatabaseControl::GetFindResult(const QString &search_query, QVector<MainListItem> &result)
 {  
   result.clear();
 
   QSqlQuery query(db);
-  if (!query.exec("SELECT * from torrents WHERE name LIKE '%" + search_query + "%'"))
+  if (!query.exec("SELECT * from torrents WHERE name LIKE '%" + QRegularExpression::escape(search_query) + "%'"))
   {
     qDebug() << "Unable to select";
   }

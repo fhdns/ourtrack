@@ -16,11 +16,8 @@
 
 
 //-------------------------------------------------------------------
-// Настройки соединения с сервером
+// Настройки ожидания соединения с сервером
 
-//"torwikignoueupfm.onion" "25jdsgtkkvt4kkk5.onion" "localhost"
-#define SERVER_HOST           "localhost"
-#define SERVER_PORT           7777
 #define TIME_WAIT_FOR_CONNECT 500000
 #define TIME_WAIT_FOR_WRITTEN 200000
 

@@ -15,7 +15,7 @@ public:
 
     void connect_db();
     void disconnect_db();
-    void GetFindResult(QString &search_query, QVector<MainListItem> &result);
+    void GetFindResult(const QString &search_query, QVector<MainListItem> &result);
 
 private:
     QSqlDatabase db;
