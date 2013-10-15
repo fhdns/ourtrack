@@ -5,14 +5,25 @@
 // Настройки поисковой выдачи
 
 // Столбцы поисковой выдачи
-#define COL_COUNT         7
-#define COL_HEADER        "Category" << "Name" << "Date" << "Size" << "SE" << "LE" << "Magnet"
+#define COL_COUNT             9
+#define NUM_COL_DESCRIPTION   3
+#define COL_HEADER            "ID" << \
+                              "Category" << \
+                              "Name" << \
+                              "Desription" << \
+                              "Size" << \
+                              "Register" << \
+                              "Hash" << \
+                              "User" << \
+                              "Liked"
 
 // Минимум букв для поисковой строки
-#define MIN_CHAR_SEARCH   4 
+#define MIN_CHAR_SEARCH       4 
 
+// Адрес страницы приземления
+#define PROMO_PAGE_URL        "http://ourtrack.ru"
 // Файлы конфигурации
-#define SERVER_HOSTS_PATH "hosts.ini"
+#define SERVER_HOSTS_PATH     "hosts.ini"
 
 
 //-------------------------------------------------------------------

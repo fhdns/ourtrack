@@ -6,6 +6,7 @@
 #include "mainlistitem.h"
 #include <QVector>
 #include <QMessageBox>
+#include <QTableWidgetItem>
 
 //-------------------------------------------------------------------
 
@@ -16,10 +17,11 @@ class ourtrack : public QMainWindow
 public:
   ourtrack(QWidget *parent = 0);
   ~ourtrack();
-
+  
 public slots:
   void SendFindQuery();
-  void slotReadServer();
+  void ReadServer();
+  void ResultItemActivated(QTableWidgetItem *item);
 
 private:  
   // Загрузка конфигурации

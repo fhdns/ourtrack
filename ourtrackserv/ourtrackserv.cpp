@@ -103,8 +103,9 @@ void ourtrackserv::slotReadClient()
   QVector<MainListItem> search_results;
   db_ctrl.GetFindResult(search_query, search_results);
 
-  clientSocket->write(Serialize(search_results));
-  if (clientSocket->waitForBytesWritten())
+  QByteArray sbuff = Serialize(search_results);
+  clientSocket->write(sbuff);
+  if (clientSocket->waitForBytesWritten(300000))
   {
     clientSocket->close();
     SClients.remove(idusersocs);

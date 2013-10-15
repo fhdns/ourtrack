@@ -47,7 +47,11 @@ void DatabaseControl::GetFindResult(const QString &search_query, QVector<MainLis
   result.clear();
 
   QSqlQuery query(db);
-  if (!query.exec("SELECT * from torrents WHERE name LIKE '%" + QRegularExpression::escape(search_query) + "%'"))
+  QString tmpQuery = QString("SELECT * from torrents \
+                              WHERE name LIKE '%" + QRegularExpression::escape(search_query) + "%' \
+                              LIMIT " + QString::number(QUERY_LIMIT));
+
+  if (!query.exec(tmpQuery))
   {
     qDebug() << "Unable to select";
   }
@@ -56,13 +60,15 @@ void DatabaseControl::GetFindResult(const QString &search_query, QVector<MainLis
   while (query.next())
   {
     MainListItem item;
-    item.Data[0]  = query.value(rec.indexOf("description")).toString();
-    item.Data[1]  = query.value(rec.indexOf("name")).toString();
-    item.Data[2]  = query.value(rec.indexOf("description")).toString();
+    item.Data[0]  = query.value(rec.indexOf("id")).toString();
+    item.Data[1]  = query.value(rec.indexOf("category")).toString();
+    item.Data[2]  = query.value(rec.indexOf("name")).toString();
     item.Data[3]  = query.value(rec.indexOf("description")).toString();
-    item.Data[4]  = query.value(rec.indexOf("description")).toString();
-    item.Data[5]  = query.value(rec.indexOf("description")).toString();
-    item.Data[6]  = query.value(rec.indexOf("description")).toString();
+    item.Data[4]  = query.value(rec.indexOf("size")).toString();
+    item.Data[5]  = query.value(rec.indexOf("reg_time")).toString();
+    item.Data[6]  = query.value(rec.indexOf("hash")).toString();
+    item.Data[7]  = query.value(rec.indexOf("user_id")).toString();
+    item.Data[8]  = query.value(rec.indexOf("liked")).toString();
     result.push_back(item);
   }
 }
