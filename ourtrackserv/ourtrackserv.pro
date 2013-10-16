@@ -7,7 +7,11 @@ TARGET = ourtrackserv
 DESTDIR = ../BUILD/other/Debug
 QT += core sql network
 CONFIG += debug console
-DEFINES += QT_DLL QT_NETWORK_LIB QT_SQL_LIB
+
+win32 {
+    DEFINES += QT_DLL QT_NETWORK_LIB QT_SQL_LIB
+}
+
 INCLUDEPATH += . \
     ./GeneratedFiles/Debug
 DEPENDPATH += .

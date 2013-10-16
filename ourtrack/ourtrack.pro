@@ -7,7 +7,11 @@ TARGET = ourtrack
 DESTDIR = ../BUILD/other/Debug
 QT += core network webkit widgets gui webkitwidgets
 CONFIG += debug
-DEFINES += QT_DLL QT_NETWORK_LIB QT_WIDGETS_LIB QT_WEBKITWIDGETS_LIB
+
+win32 {
+    DEFINES += QT_DLL QT_NETWORK_LIB QT_WIDGETS_LIB QT_WEBKITWIDGETS_LIB
+}
+
 INCLUDEPATH += ./GeneratedFiles \
     . \
     ./GeneratedFiles/Debug
