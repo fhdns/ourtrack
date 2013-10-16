@@ -5,7 +5,7 @@
 TEMPLATE = app
 TARGET = ourtrack
 DESTDIR = ../Win32/Debug
-QT += core network widgets gui
+QT += core network widgets gui webkit
 CONFIG += debug
 
 QMAKE_CXXFLAGS += -std=c++11
