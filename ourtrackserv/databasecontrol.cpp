@@ -1,7 +1,7 @@
 #include "databasecontrol.h"
-#include <QtSql\QSqlError>
-#include <QtSql\QSqlQuery>
-#include <QtSql\QSqlRecord>
+#include <QtSql/QSqlError>
+#include <QtSql/QSqlQuery>
+#include <QtSql/QSqlRecord>
 #include <QRegularExpression>
 #include <QDebug>
 

@@ -3,7 +3,7 @@
 
 #include <QVector>
 #include <mainlistitem.h>
-#include <QtSql\QSqlDatabase>
+#include <QtSql/QSqlDatabase>
 
 class DatabaseControl : public QObject
 {
