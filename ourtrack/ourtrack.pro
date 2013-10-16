@@ -8,8 +8,10 @@ DESTDIR = ../BUILD/other/Debug
 QT += core network webkit widgets gui webkitwidgets
 CONFIG += debug
 
-win32 {
-    DEFINES += QT_DLL QT_NETWORK_LIB QT_WIDGETS_LIB QT_WEBKITWIDGETS_LIB
+QMAKE_CXXFLAGS += -std=c++11
+
+windows {
+    DEFINES += WIN64 QT_DLL QT_NETWORK_LIB QT_WIDGETS_LIB
 }
 
 INCLUDEPATH += ./GeneratedFiles \

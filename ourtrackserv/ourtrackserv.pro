@@ -8,8 +8,10 @@ DESTDIR = ../BUILD/other/Debug
 QT += core sql network
 CONFIG += debug console
 
-win32 {
-    DEFINES += QT_DLL QT_NETWORK_LIB QT_SQL_LIB
+QMAKE_CXXFLAGS += -std=c++11
+
+windows {
+    DEFINES += WIN64 QT_DLL QT_NETWORK_LIB QT_SQL_LIB
 }
 
 INCLUDEPATH += . \
