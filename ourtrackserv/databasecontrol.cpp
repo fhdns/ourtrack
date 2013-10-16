@@ -2,11 +2,16 @@
 #include <QtSql/QSqlError>
 #include <QtSql/QSqlQuery>
 #include <QtSql/QSqlRecord>
-#include <QRegularExpression>
 #include <QDebug>
 #include <QDateTime>
 
 //-------------------------------------------------------------------
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+#  include <QRegExp>
+#else
+#  include <QRegularExpression>
+#endif
 
 DatabaseControl::DatabaseControl(QObject *parent)
   : QObject(parent)
