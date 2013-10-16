@@ -7,7 +7,13 @@ TARGET = ourtrackserv
 DESTDIR = ../Win32/Debug
 QT += core sql network
 CONFIG += debug console
-DEFINES += WIN64 QT_DLL QT_NETWORK_LIB QT_SQL_LIB
+
+QMAKE_CXXFLAGS += -std=c++11
+
+windows {
+    DEFINES += WIN64 QT_DLL QT_NETWORK_LIB QT_SQL_LIB
+}
+
 INCLUDEPATH += . \
     ./GeneratedFiles/Debug
 DEPENDPATH += .

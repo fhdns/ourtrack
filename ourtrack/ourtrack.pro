@@ -5,9 +5,15 @@
 TEMPLATE = app
 TARGET = ourtrack
 DESTDIR = ../Win32/Debug
-QT += core network widgets gui
+QT += core network widgets gui webkit
 CONFIG += debug
-DEFINES += WIN64 QT_DLL QT_NETWORK_LIB QT_WIDGETS_LIB
+
+QMAKE_CXXFLAGS += -std=c++11
+
+windows {
+    DEFINES += WIN64 QT_DLL QT_NETWORK_LIB QT_WIDGETS_LIB
+}
+
 INCLUDEPATH += ./GeneratedFiles \
     . \
     ./GeneratedFiles/Debug

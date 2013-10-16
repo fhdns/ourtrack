@@ -1,9 +1,14 @@
 #include "databasecontrol.h"
-#include <QtSql\QSqlError>
-#include <QtSql\QSqlQuery>
-#include <QtSql\QSqlRecord>
-#include <QRegularExpression>
+#include <QtSql/QSqlError>
+#include <QtSql/QSqlQuery>
+#include <QtSql/QSqlRecord>
 #include <QDebug>
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+#  include <QRegExp>
+#else
+#  include <QRegularExpression>
+#endif
 
 DatabaseControl::DatabaseControl(QObject *parent)
   : QObject(parent)
@@ -47,9 +52,16 @@ void DatabaseControl::GetFindResult(const QString &search_query, QVector<MainLis
   result.clear();
 
   QSqlQuery query(db);
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+  QString tmpQuery = QString("SELECT * from torrents \
+                              WHERE name LIKE '%" + QRegExp::escape(search_query) + "%' \
+                              LIMIT " + QString::number(QUERY_LIMIT));
+#else
   QString tmpQuery = QString("SELECT * from torrents \
                               WHERE name LIKE '%" + QRegularExpression::escape(search_query) + "%' \
                               LIMIT " + QString::number(QUERY_LIMIT));
+#endif
 
   if (!query.exec(tmpQuery))
   {
