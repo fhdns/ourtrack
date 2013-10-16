@@ -8,6 +8,8 @@ DESTDIR = ../Win32/Debug
 QT += core network widgets gui
 CONFIG += debug
 
+QMAKE_CXXFLAGS += -std=c++11
+
 windows {
     DEFINES += WIN64 QT_DLL QT_NETWORK_LIB QT_WIDGETS_LIB
 }
