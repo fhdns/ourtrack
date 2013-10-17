@@ -1,15 +1,54 @@
 #include "ourtrack.h"
 #include <QFile>
 #include <QList>
+#include <QUrl>
+#include <QStringList>
+#include <QDesktopServices>
+
+//-------------------------------------------------------------------
+
+namespace convert
+{
+
+  QStringList default_trackers() {
+      QStringList list;
+      list << "http://retracker.local/announce";
+      list << "udp://tracker.openbittorrent.com:80/announce";
+      list << "udp://tracker.publicbt.com:80/announce";
+      list << "udp://tracker.ccc.de:80/announce";
+      return list;
+  }
+
+  QString magnetUrl(QString hash, QString name, qlonglong size, bool urlencode)
+  {
+      QString magnet = "magnet:?xt=urn:btih:" + hash +
+          "&dn=" + (urlencode ? QUrl::toPercentEncoding(name) : name) +
+          "&xl=" + QString::number(size);
+      QStringList trackers_list = default_trackers();
+      foreach (QString tracker, trackers_list)
+      {
+          if (!tracker.isEmpty())
+          {
+              magnet += "&tr=" + (urlencode ? QUrl::toPercentEncoding(tracker) : tracker);
+          }
+      }
+      return magnet;
+  }
+}
 
 //-------------------------------------------------------------------
 
 ourtrack::ourtrack(QWidget *parent)
   : QMainWindow(parent)
 {
-  ui.setupUi(this);    
+  ui.setupUi(this);   
+
   QObject::connect(ui.ButtonFind, SIGNAL(clicked()), this, SLOT(SendFindQuery()));
   QObject::connect(ui.TableResult, SIGNAL(itemPressed(QTableWidgetItem *)), this, SLOT(ResultItemActivated(QTableWidgetItem *)));
+  //QObject::connect(ui.DescriptionBrowser, SIGNAL(linkClicked(QUrl)), this, SLOT(linkClickedDownload(QUrl)));
+  QObject::connect(ui.DescriptionBrowser, SIGNAL(linkClicked(const QUrl & )), this, SLOT(linkClickedDownload(const QUrl & )));
+  
+  ui.DescriptionBrowser->page()->setLinkDelegationPolicy( QWebPage::DelegateAllLinks );
 
   ui.DescriptionBrowser->setUrl(QUrl(PROMO_PAGE_URL));
 
@@ -86,7 +125,6 @@ void ourtrack::ShowList()
     msgBox.exec();
     return;
   }
-
   table->setSortingEnabled(false);
   table->clear();
   table->setColumnCount(COL_COUNT);
@@ -102,12 +140,10 @@ void ourtrack::ShowList()
     {
       auto *ListItem = new QTableWidgetItem(items[i].Data[j]);
       table->setItem(i, j, ListItem);
-
-      int len = items[i].Data[j].size();
-      if (!i)  table->setColumnWidth(j, len*10);
     }    
   }
-    
+  
+  table->resizeColumnsToContents();
   table->setSortingEnabled(true);
 }
 
@@ -115,8 +151,21 @@ void ourtrack::ShowList()
 
 void ourtrack::ResultItemActivated(QTableWidgetItem *item)
 {
-  int elem_num = item->row();
-  ui.DescriptionBrowser->setHtml(items[elem_num].Data[NUM_COL_DESCRIPTION]);
+  MainListItem *MainItem = &items[item->row()];
+  QString html;
+
+  // Заголовок
+  html += QString("<h3>%1</h3><hr>").arg(MainItem->Data[NUM_COL_NAME]);
+
+  // Описание
+  html += MainItem->Data[NUM_COL_DESCRIPTION];
+
+  // Ссылка
+  html += QString("<a href='%1'>Скачать</a>").arg(convert::magnetUrl(MainItem->Data[NUM_COL_HASH],
+                                                                     MainItem->Data[NUM_COL_NAME],
+                                                                     MainItem->Data[NUM_COL_SIZE].toInt(),
+                                                                     0));
+  ui.DescriptionBrowser->setHtml(html);
   return;
 }
 
@@ -197,3 +246,9 @@ ourtrack::host_info ourtrack::GetRandomHost()
   return avaible_hosts[rnd];
 }
 //-------------------------------------------------------------------
+
+void ourtrack::linkClickedDownload(const QUrl& url)
+{  
+  QDesktopServices::openUrl(url);
+  return;
+}

@@ -22,6 +22,7 @@ public slots:
   void SendFindQuery();
   void ReadServer();
   void ResultItemActivated(QTableWidgetItem *item);
+  void linkClickedDownload(const QUrl&);
 
 private:  
   // Загрузка конфигурации

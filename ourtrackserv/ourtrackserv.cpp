@@ -87,7 +87,7 @@ void ourtrackserv::slotReadClient()
 
   QString search_query = clientSocket->readAll();
 
-  // Если длина запроса меньше требуемой, то предварительно закрываем сокет
+  // Р•СЃР»Рё РґР»РёРЅР° Р·Р°РїСЂРѕСЃР° РјРµРЅСЊС€Рµ С‚СЂРµР±СѓРµРјРѕР№, С‚Рѕ РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕ Р·Р°РєСЂС‹РІР°РµРј СЃРѕРєРµС‚
   if (!SearchQueryCheck(search_query))
   {    
     clientSocket->close();
@@ -96,13 +96,20 @@ void ourtrackserv::slotReadClient()
   }
 
   qDebug() << search_query;
-  QVector<MainListItem> search_results;                 // результат выборки, которы будет отпарвлен клиенту
-  db_ctrl.GetFindResult(search_query, search_results);  // функция выборки, заполяет search_results
+  QVector<MainListItem> search_results;                 // СЂРµР·СѓР»СЊС‚Р°С‚ РІС‹Р±РѕСЂРєРё, РєРѕС‚РѕСЂС‹ Р±СѓРґРµС‚ РѕС‚РїР°СЂРІР»РµРЅ РєР»РёРµРЅС‚Сѓ
+  db_ctrl.GetFindResult(search_query, search_results);  // С„СѓРЅРєС†РёСЏ РІС‹Р±РѕСЂРєРё, Р·Р°РїРѕР»СЏРµС‚ search_results
 
-  QByteArray sbuff = Serialize(search_results);         // сериализуем в пригодный для отправки буффер
+  QByteArray sbuff = Serialize(search_results);         // СЃРµСЂРёР°Р»РёР·СѓРµРј РІ РїСЂРёРіРѕРґРЅС‹Р№ РґР»СЏ РѕС‚РїСЂР°РІРєРё Р±СѓС„С„РµСЂ
+
+  QFile backup("temp.bin");
+  backup.open(QIODevice::ReadWrite);
+  QDataStream out(&backup);
+  out << sbuff;
+  backup.close();
+
   clientSocket->write(sbuff);
 
-  if (clientSocket->waitForBytesWritten())
+  if (!clientSocket->waitForBytesWritten())
   {
     qDebug() << "Send Time limit. size: " << QString::number(sbuff.size())
              << " client: " << QString::number(idusersocs);

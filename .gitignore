@@ -43,12 +43,19 @@ local.properties
 
 # Build results
 
-[Dd]ebug/
-[Rr]elease/
-x64/
-build/
-[Bb]in/
-[Oo]bj/
+#[Dd]ebug/
+#[Rr]elease/
+#x64/
+#build/
+#[Bb]in/
+#[Oo]bj/
+
+[Oo]urtrack/Debug/
+[Oo]urtrack/GeneratedFiles/
+[Oo]urtrackserv/Debug/
+[Oo]urtrackserv/GeneratedFiles/
+
+
 
 # MSTest test Results
 [Tt]est[Rr]esult*/
