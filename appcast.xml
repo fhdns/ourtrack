@@ -6,10 +6,10 @@
 
   <channel>
     <title>Your Great App's Changelog</title>
-    <link>https://github.com/weqweq/ourtrack/blob/ca74977bf7fb6cec6c914d9b686793a9733bc81d/appcast.xml</link>
+    <link>https://raw.github.com/weqweq/ourtrack/updater/appcast.xml</link>
     <description>Most recent changes with links to updates.</description>
     <language>en</language>
-    <atom:link href="https://github.com/weqweq/ourtrack/blob/ca74977bf7fb6cec6c914d9b686793a9733bc81d/appcast.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://raw.github.com/weqweq/ourtrack/updater/appcast.xml" rel="self" type="application/rss+xml" />
 
     <item>
       <title>Version 2.0</title>
