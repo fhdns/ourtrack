@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss
+	version="2.0"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:fervor="https://github.com/pypt/fervor">
+
+  <channel>
+    <title>Your Great App's Changelog</title>
+    <link>https://raw.github.com/weqweq/ourtrack/updater/appcast.xml</link>
+    <description>Most recent changes with links to updates.</description>
+    <language>en</language>
+    <atom:link href="https://raw.github.com/weqweq/ourtrack/updater/appcast.xml" rel="self" type="application/rss+xml" />
+
+    <item>
+      <title>Version 2.0</title>
+      <pubDate>Mon, 09 Jan 2015 19:20:11 +0000</pubDate>
+      <guid isPermaLink="true">http://pypt.github.com/fervor/RelNotes.html#v2.0</guid>
+      <link>http://pypt.github.com/fervor/RelNotes.html#v2.0</link>
+
+      <!--
+				See QtGlobal's QT_OS_* constants for valid platform versions.
+			-->
+
+      <!-- Windows version. -->
+      <enclosure
+				url="http://ourtrack.ru/download/"
+				fervor:version="2.0"
+				fervor:platform="Q_OS_WIN32"
+				length="100000"
+				type="application/octet-stream" />
+
+      <!-- Linux version. -->
+      <enclosure
+				url="http://ourtrack.ru/download/"
+				fervor:version="2.0"
+				fervor:platform="Q_OS_LINUX"
+				length="100000"
+				type="application/octet-stream" />
+
+      <!-- OS X version. -->
+      <enclosure
+				url="http://ourtrack.ru/download/"
+				fervor:version="2.0"
+				fervor:platform="Q_OS_MAC"
+				length="100000"
+				type="application/octet-stream" />
+
+    </item>
+
+  </channel>
+</rss>

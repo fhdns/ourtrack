@@ -187,6 +187,7 @@ void ourtrack::SendFindQuery()
     return;
   }
 
+
   QByteArray sbuf(search_query.toStdString().c_str());
 
   // Соединяемся с сервером
@@ -222,13 +223,7 @@ void ourtrack::ReadServer()
 
   // Получаем данные от сервера и десериализуем в вектор элементов списка
   QByteArray recvbuff;
-
-  while (!socket->atEnd())
-  {
-    recvbuff.push_back(socket->read(MAX_SIZE_RECV));
-    socket->waitForReadyRead();
-  }
-
+  recvbuff = socket->readAll();
   DeSerialize(recvbuff);
   
   socket->close();

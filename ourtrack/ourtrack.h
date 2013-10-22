@@ -8,6 +8,8 @@
 #include <QMessageBox>
 #include <QTableWidgetItem>
 
+#include "fvupdater.h"
+
 //-------------------------------------------------------------------
 
 class ourtrack : public QMainWindow
