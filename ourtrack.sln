@@ -1,9 +1,15 @@
-
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ourtrack", "ourtrack\ourtrack.vcxproj", "{DE130B68-D889-4189-B8AC-E1CF73D2507E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C4A665B7-BC1A-42A2-8F24-26542204D5C5} = {C4A665B7-BC1A-42A2-8F24-26542204D5C5}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ourtrackserv", "ourtrackserv\ourtrackserv.vcxproj", "{07DCEB35-04CE-4BF7-8F97-6935F19148AA}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fervorUpdater", "fervorUpdater\fervorUpdater.vcxproj", "{C4A665B7-BC1A-42A2-8F24-26542204D5C5}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ourTrackUpdater", "ourTrackUpdater\ourTrackUpdater.vcxproj", "{B2BF8C35-743B-4EEA-BFE6-14436031313E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,6 +25,14 @@ Global
 		{07DCEB35-04CE-4BF7-8F97-6935F19148AA}.Debug|Win32.Build.0 = Debug|Win32
 		{07DCEB35-04CE-4BF7-8F97-6935F19148AA}.Release|Win32.ActiveCfg = Release|Win32
 		{07DCEB35-04CE-4BF7-8F97-6935F19148AA}.Release|Win32.Build.0 = Release|Win32
+		{C4A665B7-BC1A-42A2-8F24-26542204D5C5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C4A665B7-BC1A-42A2-8F24-26542204D5C5}.Debug|Win32.Build.0 = Debug|Win32
+		{C4A665B7-BC1A-42A2-8F24-26542204D5C5}.Release|Win32.ActiveCfg = Release|Win32
+		{C4A665B7-BC1A-42A2-8F24-26542204D5C5}.Release|Win32.Build.0 = Release|Win32
+		{B2BF8C35-743B-4EEA-BFE6-14436031313E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B2BF8C35-743B-4EEA-BFE6-14436031313E}.Debug|Win32.Build.0 = Debug|Win32
+		{B2BF8C35-743B-4EEA-BFE6-14436031313E}.Release|Win32.ActiveCfg = Release|Win32
+		{B2BF8C35-743B-4EEA-BFE6-14436031313E}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -30,7 +30,7 @@
    <bool>true</bool>
   </property>
   <property name="locale">
-   <locale language="Russian" country="Russia"/>
+   <locale language="Russian" country="RussianFederation"/>
   </property>
   <widget class="QWidget" name="centralWidget">
    <property name="autoFillBackground">
@@ -181,7 +181,7 @@
   <customwidget>
    <class>QWebView</class>
    <extends>QWidget</extends>
-   <header>QtWebKitWidgets/QWebView</header>
+   <header>QtWebKit/QWebView</header>
   </customwidget>
  </customwidgets>
  <resources>
