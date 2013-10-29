@@ -1,9 +1,16 @@
 #ifndef DATABASECONTROL_H
 #define DATABASECONTROL_H
 
+//-------------------------------------------------------------------
+
+#include <QObject>
 #include <QVector>
+#include <QtSql/QSqlDatabase>
+
+#include "globalsettings.h"
 #include <mainlistitem.h>
-#include <QtSql\QSqlDatabase>
+
+//-------------------------------------------------------------------
 
 class DatabaseControl : public QObject
 {
@@ -20,5 +27,7 @@ public:
 private:
     QSqlDatabase db;
 };
+
+//-------------------------------------------------------------------
 
 #endif // DATABASECONTROL_H

@@ -2,7 +2,7 @@
 
 //-------------------------------------------------------------------
 
-QByteArray ourtrackserv::Serialize(QVector<MainListItem> &items)
+QByteArray ourtrackserv::Serialize(const QVector<MainListItem> &items)
 {
   // Результирующий буффер
   QByteArray buffer;
@@ -16,11 +16,20 @@ QByteArray ourtrackserv::Serialize(QVector<MainListItem> &items)
 
   // Добавляем все элементы
   for (auto it = items.begin(); it != items.end(); ++it)
-    for (int j = 0; j < COL_COUNT; j++)
-      m.insert(counter++, it->Data[j]);
+  {
+    m.insert(counter++, it->id);
+    m.insert(counter++, it->category);
+    m.insert(counter++, it->name);
+    m.insert(counter++, it->description);
+    m.insert(counter++, it->size);
+    m.insert(counter++, it->reg_time);
+    m.insert(counter++, it->hash);
+    m.insert(counter++, it->user_id);
+    m.insert(counter++, it->liked);
+  }
 
   out << m;
-  return buffer;
+  return  qCompress(buffer, 0);
 }
 
 //-------------------------------------------------------------------

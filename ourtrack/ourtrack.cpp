@@ -1,63 +1,66 @@
-#include "ourtrack.h"
 #include <QFile>
 #include <QList>
 #include <QUrl>
 #include <QStringList>
 #include <QDesktopServices>
+#include "ourtrack.h"
 
 //-------------------------------------------------------------------
 
 namespace convert
 {
-
-  QStringList default_trackers() {
-      QStringList list;
-      list << "http://retracker.local/announce";
-      list << "udp://tracker.openbittorrent.com:80/announce";
-      list << "udp://tracker.publicbt.com:80/announce";
-      list << "udp://tracker.ccc.de:80/announce";
-      return list;
+  QStringList default_trackers()
+  {
+    QStringList list;
+    list << "http://retracker.local/announce";
+    list << "udp://tracker.openbittorrent.com:80/announce";
+    list << "udp://tracker.publicbt.com:80/announce";
+    list << "udp://tracker.ccc.de:80/announce";
+    return list;
   }
 
   QString magnetUrl(QString hash, QString name, qlonglong size, bool urlencode)
   {
-      QString magnet = "magnet:?xt=urn:btih:" + hash +
-          "&dn=" + (urlencode ? QUrl::toPercentEncoding(name) : name) +
-          "&xl=" + QString::number(size);
-      QStringList trackers_list = default_trackers();
-      foreach (QString tracker, trackers_list)
+    QString magnet = "magnet:?xt=urn:btih:" + hash +
+      "&dn=" + (urlencode ? QUrl::toPercentEncoding(name) : name) +
+      "&xl=" + QString::number(size);
+    QStringList trackers_list = default_trackers();
+    foreach (QString tracker, trackers_list)
+    {
+      if (!tracker.isEmpty())
       {
-          if (!tracker.isEmpty())
-          {
-              magnet += "&tr=" + (urlencode ? QUrl::toPercentEncoding(tracker) : tracker);
-          }
+        magnet += "&tr=" + (urlencode ? QUrl::toPercentEncoding(tracker) : tracker);
       }
-      return magnet;
+    }
+    return magnet;
   }
-}
+} // namespace convert
 
 //-------------------------------------------------------------------
 
 ourtrack::ourtrack(QWidget *parent)
   : QMainWindow(parent)
 {
-  ui.setupUi(this);   
+  ui.setupUi(this);  
 
+  // Соединяем сигналы с UI со слотами  
   QObject::connect(ui.ButtonFind, SIGNAL(clicked()), this, SLOT(SendFindQuery()));
+  QObject::connect(ui.TableResult, SIGNAL(itemActivated(QTableWidgetItem *)), this, SLOT(ResultItemActivated(QTableWidgetItem *)));
   QObject::connect(ui.TableResult, SIGNAL(itemPressed(QTableWidgetItem *)), this, SLOT(ResultItemActivated(QTableWidgetItem *)));
-  //QObject::connect(ui.DescriptionBrowser, SIGNAL(linkClicked(QUrl)), this, SLOT(linkClickedDownload(QUrl)));
   QObject::connect(ui.DescriptionBrowser, SIGNAL(linkClicked(const QUrl & )), this, SLOT(linkClickedDownload(const QUrl & )));
-  
+
   ui.DescriptionBrowser->page()->setLinkDelegationPolicy( QWebPage::DelegateAllLinks );
 
-  ui.DescriptionBrowser->setUrl(QUrl(PROMO_PAGE_URL));
+  ui.DescriptionBrowser->setUrl(QUrl(PROMO_PAGE_URL));    // Страница приземления
 
   // Загружаем конфигурацию
   ConfLoad();
 
+
   // Сокет для соединения с сервером
   socket = new QTcpSocket(this);
   connect(socket, SIGNAL(readyRead()), this, SLOT(ReadServer()));
+
   // Привязка прокси-сервера к сокету
 #ifdef PROXY_SERVER
   proxy_srv = new ProxyServer(socket);
@@ -66,7 +69,6 @@ ourtrack::ourtrack(QWidget *parent)
 }
 
 //-------------------------------------------------------------------
-
 ourtrack::~ourtrack()
 {
   socket->close();
@@ -81,53 +83,48 @@ ourtrack::~ourtrack()
 
 bool ourtrack::ConfLoad()
 {
-  // Открываем файл с со списком достпных адресов серверов
+  // Открываем файл с со списком доступных адресов серверов
   QFile hosts(SERVER_HOSTS_PATH);
-  if(!hosts.open(QIODevice::ReadWrite))
+  if(hosts.open(QIODevice::ReadWrite))
   {
-    return 0;
-  }
+    while (!hosts.atEnd())
+    {
+      char sep = 0x3A; // ":"
+      QList<QByteArray> current_host_info = hosts.readLine().split(sep);  
 
-  while (!hosts.atEnd())
-  {
-    char sep = 0x3A; // ":"
-    QList<QByteArray> current_host_info = hosts.readLine().split(sep);  
-
-    host_info addr;
-    addr.host = current_host_info.at(0);
-    addr.port = current_host_info.at(1).toULongLong();
-    avaible_hosts.push_back(addr);
+      host_info addr;
+      addr.host = current_host_info.at(0);
+      addr.port = current_host_info.at(1).toULongLong();
+      avaible_hosts.push_back(addr);
+    }
+    hosts.close();
   }
-  hosts.close();
 
   // Если хосты не определены, то пускаем юзера в программу, но отключаем возможность соединения
   if (!avaible_hosts.size())
   {    
-    msgBox.setText(QString("Не найдено ни одной записи %1").arg(SERVER_HOSTS_PATH));
-    msgBox.setIcon(QMessageBox::Critical);
-    msgBox.exec();
+    QMessageBox::critical(this, "Внимание", QString("Не найдено ни одной записи %1").arg(SERVER_HOSTS_PATH));
     ui.ButtonFind->setEnabled(0);
+    return false;
   }
-  return 1;
+
+  return true;
 }
 
 //-------------------------------------------------------------------
 void ourtrack::ShowList()
 {
   QTableWidget *table = ui.TableResult;
-
   if (!table) return;
   
   if (!items.size())
-  {    
-    msgBox.setText("Ничего не найдено");
-    msgBox.setIcon(QMessageBox::Information);
-    msgBox.exec();
+  {  
+    QMessageBox::warning(this, "Внимание", "Ничего не найдено");
     return;
   }
-  table->setSortingEnabled(false);
+
   table->clear();
-  table->setColumnCount(COL_COUNT);
+  table->setColumnCount(6);
   table->setRowCount(items.size());
 
   QStringList header_lst;
@@ -136,37 +133,54 @@ void ourtrack::ShowList()
 
   for ( auto i = 0; i < items.size(); i++ )
   {
-    for ( auto j = 0; j < COL_COUNT; j++ )
-    {
-      auto *ListItem = new QTableWidgetItem(items[i].Data[j]);
-      table->setItem(i, j, ListItem);
-    }    
+    #define NEW_ITEM_TABLE(num_row, num_col, new_widget_item, source_item)   QTableWidgetItem *new_widget_item = new QTableWidgetItem(source_item); \
+                                                                             table->setItem(num_row, num_col, new_widget_item);
+    
+    NEW_ITEM_TABLE(i, 0, widget_id,     QString::number(items[i].id));
+    NEW_ITEM_TABLE(i, 1, widget_cat,    QString::number(items[i].category));
+    NEW_ITEM_TABLE(i, 2, widget_name,   items[i].name);
+    NEW_ITEM_TABLE(i, 3, widget_size,   QString::number((long long)items[i].size));
+    NEW_ITEM_TABLE(i, 4, widget_rtime,  items[i].reg_time);
+    NEW_ITEM_TABLE(i, 5, widget_liked,  QString::number(items[i].liked));
   }
   
   table->resizeColumnsToContents();
-  table->setSortingEnabled(true);
 }
 
 //-------------------------------------------------------------------
 
 void ourtrack::ResultItemActivated(QTableWidgetItem *item)
 {
-  MainListItem *MainItem = &items[item->row()];
+  ui.DescriptionBrowser->setHtml(GetDescHtml(item->row()));
+}
+
+//-------------------------------------------------------------------
+
+QString ourtrack::GetDescHtml(const int num)
+{
+  MainListItem *MainItem = &items[num];
+
   QString html;
 
   // Заголовок
-  html += QString("<h3>%1</h3><hr>").arg(MainItem->Data[NUM_COL_NAME]);
+  html += QString("<h3>%1</h3><hr>").arg(MainItem->name);
 
   // Описание
-  html += MainItem->Data[NUM_COL_DESCRIPTION];
+  html += MainItem->description;
 
   // Ссылка
-  html += QString("<a href='%1'>Скачать</a>").arg(convert::magnetUrl(MainItem->Data[NUM_COL_HASH],
-                                                                     MainItem->Data[NUM_COL_NAME],
-                                                                     MainItem->Data[NUM_COL_SIZE].toInt(),
-                                                                     0));
-  ui.DescriptionBrowser->setHtml(html);
-  return;
+  html += QString("<a href='%1'>Скачать</a> ").arg(convert::magnetUrl(MainItem->hash,
+                                                                      MainItem->name,
+                                                                      MainItem->size,
+                                                                      false));
+  
+  // Размер и дата
+  html += QString("(Размер: %1 МБ").arg(MainItem->size);
+
+  // Описание
+  html += QString("<br>%1").arg(MainItem->description);
+
+  return html;
 }
 
 //-------------------------------------------------------------------
@@ -180,23 +194,29 @@ void ourtrack::SendFindQuery()
 
   // Если запрос меньше требуемого размера, говорим ему об этом
   if (search_query.length() < MIN_CHAR_SEARCH)
-  {
-    msgBox.setText("Минимальная длина поискового запроса - " + QString::number(MIN_CHAR_SEARCH) + " символа(ов)");
-    msgBox.setIcon(QMessageBox::Information);
-    msgBox.exec();
+  {    
+    QString msg = "Минимальная длина поискового запроса - " + QString::number(MIN_CHAR_SEARCH) + " символа(ов)";
+    QMessageBox::warning(this, "Внимание", msg);
     return;
   }
 
   QByteArray sbuf(search_query.toStdString().c_str());
 
   // Соединяемся с сервером
+  connect_to_host:
   host_info server_addr = GetRandomHost();
   socket->connectToHost(server_addr.host, server_addr.port);
   if (!socket->waitForConnected(TIME_WAIT_FOR_CONNECT))
-  {    
-    msgBox.setText(QString("Превышено время ожидания соединения"));
-    msgBox.setIcon(QMessageBox::Warning);
-    msgBox.exec();
+  {
+    QMessageBox::warning(this, "Внимание", "Превышено время ожидания соединения");
+
+    // Соединиться с другим сервером?
+    if ( QMessageBox::question(this, "Переподключиться?", "Попробовать еще с другим сервером?",
+                               QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes)
+    {
+      goto connect_to_host;
+    }
+
     socket->close();
     return;
   }  
@@ -204,10 +224,8 @@ void ourtrack::SendFindQuery()
   // Отправляем наш поисковый запрос
   socket->write(sbuf);
   if (!socket->waitForBytesWritten(TIME_WAIT_FOR_WRITTEN))
-  {    
-    msgBox.setText(QString("Превышено время ожидания отправки поискового запроса"));
-    msgBox.setIcon(QMessageBox::Warning);
-    msgBox.exec();
+  {        
+    QMessageBox::warning(this, "Внимание", "Превышено время ожидания отправки поискового запроса");
     socket->close();
     return;
   }
@@ -252,3 +270,5 @@ void ourtrack::linkClickedDownload(const QUrl& url)
   QDesktopServices::openUrl(url);
   return;
 }
+
+//-------------------------------------------------------------------

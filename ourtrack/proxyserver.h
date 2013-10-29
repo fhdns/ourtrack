@@ -1,9 +1,11 @@
 #ifndef PROXYSERVER_H
 #define PROXYSERVER_H
 
-#include "globalsettings.h"
+//-------------------------------------------------------------------
+
 #include <QtNetwork>
 #include <QProcess>
+#include "globalsettings.h"
 
 //-------------------------------------------------------------------
 

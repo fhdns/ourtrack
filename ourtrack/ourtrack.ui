@@ -43,6 +43,13 @@
        <widget class="QLineEdit" name="EditFind"/>
       </item>
       <item>
+       <widget class="QPushButton" name="ButtonAddForm">
+        <property name="text">
+         <string>Добавить</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="ButtonFind">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -114,7 +121,7 @@
          <enum>Qt::SolidLine</enum>
         </property>
         <property name="sortingEnabled">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <property name="rowCount">
          <number>0</number>
@@ -123,7 +130,7 @@
          <number>0</number>
         </property>
         <attribute name="verticalHeaderDefaultSectionSize">
-         <number>20</number>
+         <number>30</number>
         </attribute>
        </widget>
       </item>

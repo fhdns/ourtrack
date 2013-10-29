@@ -1,12 +1,16 @@
 #ifndef OURTRACK_H
 #define OURTRACK_H
 
-#include "ui_ourtrack.h"
-#include "proxyserver.h"
-#include "mainlistitem.h"
+//-------------------------------------------------------------------
+
+#include <QObject>
 #include <QVector>
 #include <QMessageBox>
 #include <QTableWidgetItem>
+
+#include "ui_ourtrack.h"
+#include "proxyserver.h"
+#include "mainlistitem.h"
 
 //-------------------------------------------------------------------
 
@@ -19,32 +23,24 @@ public:
   ~ourtrack();
   
 public slots:
-  void SendFindQuery();
-  void ReadServer();
+  // Взаимодействие с UI
   void ResultItemActivated(QTableWidgetItem *item);
   void linkClickedDownload(const QUrl&);
+  // Взаимодействие с сервером
+  void SendFindQuery();
+  void ReadServer();
 
-private:  
-  // Загрузка конфигурации
-  bool ConfLoad();
+private:
   
-  // Вывод вектора поисковой выдачи в tableView
-  void ShowList();
-
-  // Сериализация и десериализация предметов списка ( представление вектора items в виде QByteArray )
-  //QByteArray  Serialize();
-  void        DeSerialize(QByteArray &buffer);
-
-  // Пользовательский интерфейс
-  Ui::ourtrackClass     ui;
-  QMessageBox           msgBox;
-
   // Список элементов поисковой выдачи
   QVector<MainListItem> items;
+  
+  // Пользовательский интерфейс
+  Ui::ourtrackClass     ui;
 
   // Работа с сетью
   QTcpSocket            *socket;
-  ProxyServer           *proxy_srv;
+  ProxyServer           *proxy_srv;   // Модуль работы с прокс-сервером
   
   // Подключение к серверу
   // Доступные адреса расположения сервера (из файла SERVER_HOSTS_PATH)
@@ -54,9 +50,14 @@ private:
     quint64 port;
   };
   QVector<host_info> avaible_hosts;
-  host_info GetRandomHost();
+
+  // Методы  
+  bool      ConfLoad();                                 // Загрузка конфигурации
+  QString   GetDescHtml(const int num);                 // Генерация html из элемента вектора по номеру
+  void      ShowList();                                 // Вывод вектора поисковой выдачи в tableView
+  void      DeSerialize(const QByteArray &buffer);      // Десериализация предметов списка
+  host_info GetRandomHost();                            // Выбирает случайный адрес из списка hosts.ini
 };
-
+    
 //-------------------------------------------------------------------
-
 #endif // OURTRACK_H

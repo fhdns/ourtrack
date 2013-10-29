@@ -1,24 +1,35 @@
 #include "databasecontrol.h"
-#include <QtSql\QSqlError>
-#include <QtSql\QSqlQuery>
-#include <QtSql\QSqlRecord>
+#include <QtSql/QSqlError>
+#include <QtSql/QSqlQuery>
+#include <QtSql/QSqlRecord>
 #include <QRegularExpression>
 #include <QDebug>
+
+//-------------------------------------------------------------------
 
 DatabaseControl::DatabaseControl(QObject *parent)
   : QObject(parent)
 {
-
 }
+
+//-------------------------------------------------------------------
 
 DatabaseControl::~DatabaseControl()
 {
-
+  disconnect_db();
 }
+
+//-------------------------------------------------------------------
 
 void DatabaseControl::connect_db()
 {
   db = QSqlDatabase::addDatabase(DB_DRIVER);
+
+  if(db.isOpen())
+  {
+    qDebug() << "Database already open";
+    return;
+  }
 
   db.setDatabaseName(DB_NAME);
   db.setHostName(DB_HOST);
@@ -32,9 +43,10 @@ void DatabaseControl::connect_db()
     return;
   }
   
-  qDebug() << DB_DRIVER<< "Database connected (" << DB_HOST << ":" << DB_PORT << ")";
-  return;  
+  qDebug() << DB_DRIVER << "Database connected (" << DB_HOST << ":" << DB_PORT << ")";
 }
+
+//-------------------------------------------------------------------
 
 void DatabaseControl::disconnect_db()
 {
@@ -42,33 +54,44 @@ void DatabaseControl::disconnect_db()
   qDebug() << DB_DRIVER<< "Database disconnected";
 }
 
+//-------------------------------------------------------------------
+
 void DatabaseControl::GetFindResult(const QString &search_query, QVector<MainListItem> &result)
 {  
+  if(!db.isOpen())
+  {
+    qDebug() << "Find error: Database is not open";
+    return;
+  }
+
   result.clear();
 
   QSqlQuery query(db);
-  QString tmpQuery = QString("SELECT * from torrents \
+  QString strQuery = QString("SELECT * from torrents \
                               WHERE name LIKE '%" + QRegularExpression::escape(search_query) + "%' \
                               LIMIT " + QString::number(QUERY_LIMIT));
 
-  if (!query.exec(tmpQuery))
+  if (!query.exec(strQuery))
   {
     qDebug() << "Unable to select";
+    return;
   }
   
   QSqlRecord rec = query.record();
   while (query.next())
   {
     MainListItem item;
-    item.Data[0]  = query.value(rec.indexOf("id")).toString();
-    item.Data[1]  = query.value(rec.indexOf("category")).toString();
-    item.Data[2]  = query.value(rec.indexOf("name")).toString();
-    item.Data[3]  = query.value(rec.indexOf("description")).toString();
-    item.Data[4]  = query.value(rec.indexOf("size")).toString();
-    item.Data[5]  = query.value(rec.indexOf("reg_time")).toString();
-    item.Data[6]  = query.value(rec.indexOf("hash")).toString();
-    item.Data[7]  = query.value(rec.indexOf("user_id")).toString();
-    item.Data[8]  = query.value(rec.indexOf("liked")).toString();
+    item.id           = query.value(rec.indexOf("id")).toInt();
+    item.category     = query.value(rec.indexOf("category")).toInt();
+    item.name         = query.value(rec.indexOf("name")).toString();
+    item.description  = query.value(rec.indexOf("description")).toString();
+    item.reg_time     = query.value(rec.indexOf("size")).toFloat();
+    item.reg_time     = query.value(rec.indexOf("reg_time")).toString();
+    item.hash         = query.value(rec.indexOf("hash")).toString();
+    item.user_id      = query.value(rec.indexOf("user_id")).toInt();
+    item.liked        = query.value(rec.indexOf("liked")).toInt();
     result.push_back(item);
   }
 }
+
+//-------------------------------------------------------------------

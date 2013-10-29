@@ -1,5 +1,6 @@
 #include "ourtrackserv.h"
 #include <QByteArray>
+#include <QDebug>
 
 //-------------------------------------------------------------------
 
@@ -23,27 +24,21 @@ ourtrackserv::~ourtrackserv()
 
 void ourtrackserv::on_starting()
 {
-  if (!tcpServer)
-  {    
-    qDebug() << "QTcpServer does not exist";
-    return;
-  }
-  else if (tcpServer->isListening())
+  if (tcpServer->isListening())
   {
     qDebug() << "QTcpServer already is running";
     return;
   }
 
-  if (tcpServer->listen(QHostAddress::Any, LISTEN_PORT))
+  if (!tcpServer->listen(QHostAddress::Any, LISTEN_PORT))
   {
-    connect(tcpServer, SIGNAL(newConnection()), this, SLOT(slotNewUser()));
-    qDebug() << "TCPSocket listen on port " << tcpServer->serverPort();
-    qDebug() << "Server started!";
+    qDebug() <<  "Unable to start the server: " << tcpServer->errorString();
+    return;
   }
-  else
-  {
-    qDebug() <<  QObject::tr("Unable to start the server: %1.").arg(tcpServer->errorString());
-  }
+
+  connect(tcpServer, SIGNAL(newConnection()), this, SLOT(slotNewUser()));
+  qDebug() << "TCPSocket listen on port " << tcpServer->serverPort();
+  qDebug() << "Server started!";
 }
 
 //-------------------------------------------------------------------
@@ -73,7 +68,7 @@ void ourtrackserv::slotNewUser()
     SClients[idusersocs] = clientSocket;
     connect(SClients[idusersocs], SIGNAL(readyRead()), this, SLOT(slotReadClient()));
 
-    qDebug() << QString::fromUtf8("New user connect: %1!").arg(idusersocs);
+    qDebug() << "New user connect: " << QString::number(idusersocs);
   }
 }
 
@@ -96,18 +91,19 @@ void ourtrackserv::slotReadClient()
   }
 
   qDebug() << search_query;
+
   QVector<MainListItem> search_results;                 // результат выборки, которы будет отпарвлен клиенту
   db_ctrl.GetFindResult(search_query, search_results);  // функция выборки, заполяет search_results
 
   QByteArray sbuff = Serialize(search_results);         // сериализуем в пригодный для отправки буффер
 
-  QFile backup("temp.bin");
-  backup.open(QIODevice::ReadWrite);
-  QDataStream out(&backup);
-  out << sbuff;
-  backup.close();
+  QFile a("temp");
+  a.open(QIODevice::WriteOnly);
+  QDataStream o(&a);
+  o << sbuff;
+  a.close();
 
-  clientSocket->write(sbuff);
+  clientSocket->write(sbuff);                           // пишем в сокет
 
   if (!clientSocket->waitForBytesWritten())
   {
@@ -121,38 +117,20 @@ void ourtrackserv::slotReadClient()
 
 //-------------------------------------------------------------------
 
-//void ourtrackserv::on_status()
-//{  
-//  if(!SocketCheck()) return;
-//  qDebug() << "Online users: "    << SClients.size();
-//  qDebug() << "Is listening: "    << tcpServer->isListening();
-//  qDebug() << "Server Address: "  << tcpServer->serverAddress();
-//  qDebug() << "Server Port: "     << tcpServer->serverPort();
-//}
-
-//-------------------------------------------------------------------
-
 inline bool ourtrackserv::SocketCheck()
-{  
-  if (!tcpServer)
-  {
-    qDebug() << "QTcpServer does not exist";
-    return 0;
-  }
-  else if (!tcpServer->isListening())
+{ 
+  if (!tcpServer->isListening())
   {
     qDebug() << "QTcpServer is not running";
-    return 0;
+    return false;
   }
-  return 1;
+
+  return true;
 }
 //-------------------------------------------------------------------
 
-inline bool ourtrackserv::SearchQueryCheck(QString &query)
-{  
-  if (query.length() < MIN_CHAR_SEARCH)
-    return 0;
-
-  return 1;
+inline bool ourtrackserv::SearchQueryCheck(const QString &query)
+{
+  return (query.length() < MIN_CHAR_SEARCH) ? false : true;
 }
 //-------------------------------------------------------------------

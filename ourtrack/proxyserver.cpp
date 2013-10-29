@@ -23,11 +23,12 @@ bool ProxyServer::start()
   if (!ProcServ.waitForStarted())
   {
     ProcServ.terminate();
-    return 0;
+    return false;
   }
+
   QNetworkProxy prox(QNetworkProxy::Socks5Proxy, PROXY_HOST, PROXY_PORT);
   socket->setProxy(prox);  
-  return 1;
+  return true;
 }
 
 //-------------------------------------------------------------------
@@ -35,7 +36,7 @@ bool ProxyServer::start()
 bool ProxyServer::stop()
 {   
   ProcServ.terminate();
-  return 1;
+  return (ProcServ.waitForFinished()) ? true : false;
 }
 
 //-------------------------------------------------------------------
