@@ -67,7 +67,6 @@ void ourtrackserv::slotNewUser()
     int idusersocs = clientSocket->socketDescriptor();
     SClients[idusersocs] = clientSocket;
     connect(SClients[idusersocs], SIGNAL(readyRead()), this, SLOT(slotReadClient()));
-
     qDebug() << "New user connect: " << QString::number(idusersocs);
   }
 }
@@ -78,30 +77,67 @@ void ourtrackserv::slotReadClient()
 {
   QTcpSocket* clientSocket = (QTcpSocket*)sender();
   int idusersocs = clientSocket->socketDescriptor();
-  QTextStream os(clientSocket);
 
-  QString search_query = clientSocket->readAll();
-
-  // Если длина запроса меньше требуемой, то предварительно закрываем сокет
-  if (!SearchQueryCheck(search_query))
-  {    
+  // Получаем флаг запроса
+  char flag;
+  if (!clientSocket->getChar(&flag))
+  {
+    qDebug() << "Error flag read";
     clientSocket->close();
     SClients.remove(idusersocs);
     return;
   }
 
+  switch (flag)
+  {
+  case FLAG_FIND:
+    {
+      FindQueryDissect(clientSocket);
+      break;
+    }
+  case FLAG_ADD:
+    {
+      AddQueryDissect(clientSocket);
+      break;
+    }
+  case FLAG_LIKED:
+    {
+      LikeQueryDissect(clientSocket);
+      break;
+    }
+  case FLAG_LAST:
+    {
+      GetLastQueryDissect(clientSocket);
+      break;
+    }
+  default:
+    {
+      break;
+    }
+  }
+
+  clientSocket->close();
+  SClients.remove(idusersocs);
+}
+
+//-------------------------------------------------------------------
+
+void ourtrackserv::FindQueryDissect(QTcpSocket *clientSocket)
+{  
+  int idusersocs = clientSocket->socketDescriptor();
+  QString search_query = clientSocket->readAll();
+
+  // Если длина запроса меньше требуемой, то предварительно закрываем сокет
+  if (!SearchQueryCheck(search_query))
+  {
+    return;
+  }
   qDebug() << search_query;
 
   QVector<MainListItem> search_results;                 // результат выборки, которы будет отпарвлен клиенту
   db_ctrl.GetFindResult(search_query, search_results);  // функция выборки, заполяет search_results
 
   QByteArray sbuff = Serialize(search_results);         // сериализуем в пригодный для отправки буффер
-
-  QFile a("temp");
-  a.open(QIODevice::WriteOnly);
-  QDataStream o(&a);
-  o << sbuff;
-  a.close();
 
   clientSocket->write(sbuff);                           // пишем в сокет
 
@@ -110,9 +146,48 @@ void ourtrackserv::slotReadClient()
     qDebug() << "Send Time limit. size: " << QString::number(sbuff.size())
              << " client: " << QString::number(idusersocs);
   }
+}
 
-  clientSocket->close();
-  SClients.remove(idusersocs);
+//-------------------------------------------------------------------
+
+void ourtrackserv::AddQueryDissect(QTcpSocket *clientSocket)
+{
+  QByteArray recvbuff = clientSocket->readAll();
+  //Десериализуем вектор
+  QVector<MainListItem> items = DeSerialize(recvbuff);
+
+  // Добавляем в БД
+  db_ctrl.AddTorrentItem(items[0]);  
+}
+
+//-------------------------------------------------------------------
+
+void ourtrackserv::LikeQueryDissect(QTcpSocket *clientSocket)
+{
+  bool to_int_ok = true;
+  int id = clientSocket->readAll().toInt(&to_int_ok);
+  if (!to_int_ok)
+  {
+    qDebug() << "error convert id to int";
+    return;
+  }
+  db_ctrl.LikedTorrent(id);
+}
+
+//-------------------------------------------------------------------
+
+void ourtrackserv::GetLastQueryDissect(QTcpSocket *clientSocket)
+{
+  QVector<MainListItem> search_results;                 // результат выборки, которы будет отпарвлен клиенту
+  db_ctrl.GetLastResult(search_results);                // функция запроса последних добавлений, заполяет search_results
+
+  QByteArray sbuff = Serialize(search_results);         // сериализуем в пригодный для отправки буффер
+  clientSocket->write(sbuff);                           // пишем в сокет
+
+  if (!clientSocket->waitForBytesWritten())
+  {
+    qDebug() << "Send Time limit. size: " << QString::number(sbuff.size());
+  }
 }
 
 //-------------------------------------------------------------------
