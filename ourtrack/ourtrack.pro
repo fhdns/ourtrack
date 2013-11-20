@@ -4,10 +4,10 @@
 
 TEMPLATE = app
 TARGET = ourtrack
-DESTDIR = ../Win32/Debug
+DESTDIR = ../BUILD/other/Debug
 QT += core network webkit widgets gui webkitwidgets
 CONFIG += debug
-DEFINES += WIN64 QT_DLL QT_NETWORK_LIB QT_WIDGETS_LIB QT_WEBKITWIDGETS_LIB
+DEFINES += QT_DLL QT_NETWORK_LIB QT_WIDGETS_LIB QT_WEBKITWIDGETS_LIB
 INCLUDEPATH += ./GeneratedFiles \
     . \
     ./GeneratedFiles/Debug

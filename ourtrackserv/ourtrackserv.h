@@ -24,10 +24,12 @@ private slots:
   void slotNewUser();     // Вызывается при новом соединении
   void slotReadClient();  // Вызывается при чтении сокета клиента
 
-  void FindQueryDissect(QTcpSocket *clientSocket);  // Разбор запросов поиска
-  void AddQueryDissect(QTcpSocket *clientSocket);   // Разбор запроса добавления нового торрента
-  void LikeQueryDissect(QTcpSocket *clientSocket);  // Разбор добавления лайка
-  void GetLastQueryDissect(QTcpSocket *clientSocket);  // Список последних раздач
+  // Обработка запроса клиента в зависимости от флага
+  void FindQueryDissect(QTcpSocket *clientSocket);  // Разбор запросов поиска (FLAG_FIND)
+  void AddQueryDissect(QTcpSocket *clientSocket);   // Разбор запроса добавления нового торрента (FLAG_ADD)
+  void LikeQueryDissect(QTcpSocket *clientSocket);  // Разбор добавления лайка (FLAG_LIKE)
+  void GetLastQueryDissect(QTcpSocket *clientSocket);  // Список последних раздач (FLAG_LAST)
+  void PlusDownloadQueryDissect(QTcpSocket *clientSocket);  // Разбор добавления числа скачек
 
 private:
   inline bool           SocketCheck();

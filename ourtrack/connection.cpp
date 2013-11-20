@@ -1,5 +1,6 @@
 #include "connection.h"
 #include <QMessageBox>
+#include <QApplication>
 
 Connection::Connection(QObject *parent)
   : QObject(parent)
@@ -36,10 +37,10 @@ bool Connection::ConnectToServer()
   socket->connectToHost(server_addr.host, server_addr.port);
   if (!socket->waitForConnected(TIME_WAIT_FOR_CONNECT))
   {
-    QMessageBox::warning(0, "Внимание", "Превышено время ожидания соединения");
+    QMessageBox::warning(0, tr("Внимание"), tr("Превышено время ожидания соединения"));
 
     // Соединиться с другим сервером?
-    if ( QMessageBox::question(0, "Переподключиться?", "Попробовать еще с другим сервером?",
+    if ( QMessageBox::question(0, tr("Переподключиться?"), tr("Попробовать еще с другим сервером?"),
                                QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes)
     {
       goto connect_to_host;
@@ -56,18 +57,18 @@ void Connection::DisconnectFromServer()
   socket->close();
 }
 
-void Connection::Send(const QByteArray *sbuff, char flag)
+bool Connection::Send(const QByteArray *sbuff, char flag)
 {  
   if (!ConnectToServer())
   {
-    return;
+    return false;
   }
   // Сначала проверям, есть ли соединение
   if (socket->state() != QAbstractSocket::ConnectedState)
   {
-    QMessageBox::warning(0, "Внимание", "Сокет не соединен");
+    QMessageBox::warning(0, tr("Внимание"), tr("Сокет не соединен"));
     DisconnectFromServer();
-    return;
+    return false;
   }
 
   // Отправляем флаг запроса серверу
@@ -77,10 +78,11 @@ void Connection::Send(const QByteArray *sbuff, char flag)
   socket->write(*sbuff);
   if (!socket->waitForBytesWritten(TIME_WAIT_FOR_WRITTEN))
   {        
-    QMessageBox::warning(0, "Внимание", "Превышено время ожидания отправки данных серверу");
+    QMessageBox::warning(0, tr("Внимание"), tr("Превышено время ожидания отправки данных серверу"));
     DisconnectFromServer();
-    return;
+    return false;
   }
+  return true;
 }
 
 void Connection::Read()
@@ -96,7 +98,7 @@ void Connection::Read()
   }
 
   emit SignalReadFinish(&data);
-  DisconnectFromServer();
+  DisconnectFromServer(); 
 }
 
 Connection::host_info Connection::GetRandomHost()
@@ -119,6 +121,9 @@ bool Connection::ConfLoad()
       char sep = 0x3A; // ":"
       QList<QByteArray> current_host_info = hosts.readLine().split(sep);  
 
+      // Должно быть минимум 2 параметра: адрес и порт
+      if (current_host_info.size() != 2) break;
+
       host_info addr;
       addr.host = current_host_info.at(0);
       addr.port = current_host_info.at(1).toULongLong();
@@ -130,7 +135,7 @@ bool Connection::ConfLoad()
   // Если хосты не определены, то пускаем юзера в программу, но отключаем возможность соединения
   if (!avaible_hosts.size())
   {    
-    QMessageBox::critical(0, "Внимание", QString("Не найдено ни одной записи %1").arg(SERVER_HOSTS_PATH));
+    QMessageBox::critical(0, "Внимание", QString(tr("Не найдено ни одной записи %1")).arg(SERVER_HOSTS_PATH));
     return false;
   }
 

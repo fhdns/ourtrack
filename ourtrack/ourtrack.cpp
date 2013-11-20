@@ -1,8 +1,8 @@
 #include <QFile>
 #include <QList>
-#include <QMutex>
 #include <QStringList>
 #include <QDesktopServices>
+#include <QFiledialog>
 #include "ourtrack.h"
 #include "convert.h"
 
@@ -12,15 +12,10 @@ ourtrack::ourtrack(QWidget *parent)
   : QMainWindow(parent)
 {
   // Установка UI
-  ui_main.setupUi(this);
+  ui_main.setupUi(this); 
 
-  // Инициализация формы добавления  
-  add_form = new QWidget;
-  ui_add.setupUi(add_form);
-  // Соединяем сигналы формы добавления со слотами
-  QObject::connect(ui_add.ButtonAddTorrent, SIGNAL(clicked()), this, SLOT(AddTorrent()));
-  QObject::connect(ui_add.ButtonCancel, SIGNAL(clicked()), this, SLOT(AddTorrentFormClose()));
-  
+  // Идентифицируем список категорий
+  categories << DEFAULT_CATEGORIES;  
 
   // При получении ответа от сервера, выводим на форму
   QObject::connect(&conn, SIGNAL(SignalReadFinish(QByteArray*)), this, SLOT(DissectServerAnswer(QByteArray*)));
@@ -37,19 +32,24 @@ ourtrack::ourtrack(QWidget *parent)
   // Настройка WebView
   ui_main.DescriptionBrowser->page()->setLinkDelegationPolicy( QWebPage::DelegateAllLinks );
   ui_main.DescriptionBrowser->setUrl(QUrl(PROMO_PAGE_URL));    // Страница приземления
+
+  // Запрашиваем список последних торрентов  
+  GetLastTorrent();
 }
 
 //-------------------------------------------------------------------
 
 ourtrack::~ourtrack()
 {
-  delete add_form;
 }
 
 //-------------------------------------------------------------------
 
 void ourtrack::ShowList()
 {
+  statusBar()->showMessage(tr("Выводим результат"));
+  
+
   QTableWidget *table = ui_main.TableResult;
   if (!table)
   {
@@ -60,12 +60,13 @@ void ourtrack::ShowList()
   {  
     table->clearContents();
     table->setRowCount(0);
-    QMessageBox::warning(0, "Внимание", "Ничего не найдено");
+    QMessageBox::warning(0, tr("Внимание"), tr("Ничего не найдено"));
+    statusBar()->showMessage(tr("Готово"));
     return;
   }
   
   table->clear();
-  table->setColumnCount(6);
+  table->setColumnCount(7);
   table->setRowCount(items.size());
 
   QStringList header_lst;
@@ -74,18 +75,25 @@ void ourtrack::ShowList()
 
   for ( auto i = 0; i < items.size(); i++ )
   {
-    #define NEW_ITEM_TABLE(num_row, num_col, new_widget_item, source_item)   QTableWidgetItem *new_widget_item = new QTableWidgetItem(source_item); \
-                                                                             table->setItem(num_row, num_col, new_widget_item);
+    #define NEW_ITEM_TABLE(num_row, num_col, new_widget_item, source_item, itm_icon)   QTableWidgetItem *new_widget_item = new QTableWidgetItem(source_item); \
+                                                                                       table->setItem(num_row, num_col, new_widget_item); \
+                                                                                       new_widget_item->setIcon(QIcon(itm_icon));
     
-    NEW_ITEM_TABLE(i, 0, widget_id,     QString::number(items[i].id));
-    NEW_ITEM_TABLE(i, 1, widget_cat,    QString::number(items[i].category));
-    NEW_ITEM_TABLE(i, 2, widget_name,   items[i].name);
-    NEW_ITEM_TABLE(i, 3, widget_size,   QString::number(items[i].size));
-    NEW_ITEM_TABLE(i, 4, widget_rtime,  items[i].reg_time);
-    NEW_ITEM_TABLE(i, 5, widget_liked,  QString::number(items[i].liked));
+    NEW_ITEM_TABLE(i, 0, widget_id,     QString::number(items[i].id), ":/ourtrack/key.png");
+    NEW_ITEM_TABLE(i, 1, widget_cat,    categories[items[i].category], "");
+    NEW_ITEM_TABLE(i, 2, widget_name,   items[i].name, ":/ourtrack/discription_icon.gif");
+    NEW_ITEM_TABLE(i, 3, widget_size,   QString("%1 MB").arg(convert::ByteToMbyte(items[i].size)), "");
+    NEW_ITEM_TABLE(i, 4, widget_rtime,  items[i].reg_time, "");
+    NEW_ITEM_TABLE(i, 5, widget_downl,  QString::number(items[i].download), ":/ourtrack/download.png");
+    NEW_ITEM_TABLE(i, 6, widget_liked,  QString::number(items[i].liked), ":/ourtrack/like-icon.png");
   }
 
-  table->resizeColumnsToContents(); 
+  table->resizeColumnsToContents();
+  // Устанавливаем ограничение для Name column
+  table->setColumnWidth(0, 0);
+  table->setColumnWidth(2, 300);
+  QApplication::alert(this);
+  statusBar()->showMessage(tr("Готово"));
 }
 
 //-------------------------------------------------------------------
@@ -113,14 +121,11 @@ QString ourtrack::GetDescHtml(const int num)
                                                                    MainItem->size,
                                                                    false));
   // Размер
-  in << "Размер: " + QString::number(MainItem->size/(1024.00 * 1024.00)) + " МБ; ";
+  in << "Размер: " + QString::number(convert::ByteToMbyte(MainItem->size)) + " МБ; ";
 
   // Дата
   in << "Дата: " + MainItem->reg_time + "; ";
   
-  // Дата
-  in << "Рейтинг: +" + QString::number(MainItem->liked) + "; ";
-
   // Описание
   in << "<hr><br>" << MainItem->description;
 
@@ -131,6 +136,7 @@ QString ourtrack::GetDescHtml(const int num)
 
 void ourtrack::SendFindQuery()
 {
+  statusBar()->showMessage(tr("Соединение..."));
   // Забираем запрос с формы
   QString search_query = ui_main.EditFind->text();
   // Убираем лишние пробелы
@@ -139,47 +145,45 @@ void ourtrack::SendFindQuery()
   // Если запрос меньше требуемого размера, говорим ему об этом
   if (search_query.length() < MIN_CHAR_SEARCH)
   {    
-    QString msg = "Минимальная длина поискового запроса - " + QString::number(MIN_CHAR_SEARCH) + " символа(ов)";
-    QMessageBox::warning(0, "Внимание", msg);
+    QString msg = tr("Минимальная длина поискового запроса - ") + QString::number(MIN_CHAR_SEARCH) + tr(" символа(ов)");
+    QMessageBox::warning(0, tr("Внимание"), msg);
     return;
   }
 
   // Отправляем на сервер
-  conn.Send(&search_query.toUtf8());
+  conn.Send(&search_query.toUtf8(), FLAG_FIND);
+  statusBar()->showMessage(tr("Ожидание ответа от сервера..."), 10000);
 }
 
 //-------------------------------------------------------------------
 
 void ourtrack::linkClickedDownload(const QUrl& url)
-{  
-  QDesktopServices::openUrl(url);
-  return;
+{
+    QDesktopServices::openUrl(url);
 }
 
 //-------------------------------------------------------------------
 
 void ourtrack::AddTorrentFormOpen()
-{
+{  
+  // Инициализация формы добавления  
+  add_form = new QWidget;
+  ui_add.setupUi(add_form);  
+  ui_add.CBoxCategory->addItems(categories);
+
+  // Соединяем сигналы формы добавления со слотами
+  QObject::connect(ui_add.ButtonAddTorrent, SIGNAL(clicked()), this, SLOT(AddTorrent()));
+  QObject::connect(ui_add.ButtonCancel, SIGNAL(clicked()), add_form, SLOT(close())); 
+  
+  QObject::connect(ui_add.ButtonVideoTemplate, SIGNAL(clicked()), this, SLOT(TemplateLoad()));
+  QObject::connect(ui_add.ButtonAudioTemplate, SIGNAL(clicked()), this, SLOT(TemplateLoad()));
+  QObject::connect(ui_add.ButtonGameTemplate, SIGNAL(clicked()), this, SLOT(TemplateLoad()));
+  QObject::connect(ui_add.ButtonSoftTemplate, SIGNAL(clicked()), this, SLOT(TemplateLoad()));
+  
+  QObject::connect(ui_add.ButtonOpenDialogTorrent, SIGNAL(clicked()), this, SLOT(OpenDialogTorrent()));
+
   add_form->show();
-}
-
-void ourtrack::AddTorrentFormClose()
-{
-  add_form->close();
-}
-
-//-------------------------------------------------------------------
-
-void ourtrack::AddTorrent()
-{
-  // Добавление торрента
-  QVector<MainListItem> items;
-  // Собираем информацию с формы
-  items.push_back(AddFormToListItem());
-  // Сериализуем
-  QByteArray sbuff = Serialize(items);
-  // Отправляем на сервер
-  conn.Send(&sbuff, FLAG_ADD);
+  add_form->setAttribute(Qt::WA_DeleteOnClose);
 }
 
 //-------------------------------------------------------------------
@@ -187,32 +191,16 @@ void ourtrack::AddTorrent()
 void ourtrack::GetLastTorrent()
 {
   QByteArray mgs("getlast");
-  conn.Send(&mgs, 0x03);
+  conn.Send(&mgs, FLAG_LAST);
 }
 
 //-------------------------------------------------------------------
 
 void ourtrack::DissectServerAnswer(QByteArray *data)
 {
-  // Первый байт - флаг
-  // <!-- dissect first byte -->
   // Сериализуем в вектор
   DeSerialize(*data);
   // Выводим
   ShowList();
 }
-
-//-------------------------------------------------------------------
-
-MainListItem ourtrack::AddFormToListItem()
-{
-  MainListItem result;
-  result.name         = ui_add.EditName->text();
-  result.category     = ui_add.EditCategory->text().toInt();
-  result.description  = ui_add.EditDescription->document()->toHtml();
-  result.hash         = ui_add.EditHash->text();
-  result.size         = ui_add.EditSize->text().toInt();
-  return result;
-}
-
 //-------------------------------------------------------------------

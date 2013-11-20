@@ -110,6 +110,11 @@ void ourtrackserv::slotReadClient()
       GetLastQueryDissect(clientSocket);
       break;
     }
+  case FLAG_PLDOWN:
+    {
+      PlusDownloadQueryDissect(clientSocket);
+      break;
+    }
   default:
     {
       break;
@@ -156,8 +161,13 @@ void ourtrackserv::AddQueryDissect(QTcpSocket *clientSocket)
   //Десериализуем вектор
   QVector<MainListItem> items = DeSerialize(recvbuff);
 
-  // Добавляем в БД
-  db_ctrl.AddTorrentItem(items[0]);  
+  // Проверяем значения на добавление и добавляем
+  for (auto it = items.begin(); it != items.end(); it++)
+  {
+    // Добавляем в БД 
+    db_ctrl.AddTorrentItem(*it); 
+  }
+
 }
 
 //-------------------------------------------------------------------
@@ -165,13 +175,27 @@ void ourtrackserv::AddQueryDissect(QTcpSocket *clientSocket)
 void ourtrackserv::LikeQueryDissect(QTcpSocket *clientSocket)
 {
   bool to_int_ok = true;
-  int id = clientSocket->readAll().toInt(&to_int_ok);
+  long long id = clientSocket->readAll().toLongLong(&to_int_ok);
   if (!to_int_ok)
   {
-    qDebug() << "error convert id to int";
+    qDebug() << "error convert id to long";
     return;
   }
   db_ctrl.LikedTorrent(id);
+}
+
+//-------------------------------------------------------------------
+
+void ourtrackserv::PlusDownloadQueryDissect(QTcpSocket *clientSocket)
+{
+  bool to_int_ok = true;
+  long long id = clientSocket->readAll().toLongLong(&to_int_ok);
+  if (!to_int_ok)
+  {
+    qDebug() << "error convert id to long";
+    return;
+  }
+  db_ctrl.PlusDownloadTorrent(id);
 }
 
 //-------------------------------------------------------------------
@@ -208,4 +232,5 @@ inline bool ourtrackserv::SearchQueryCheck(const QString &query)
 {
   return (query.length() < MIN_CHAR_SEARCH) ? false : true;
 }
+
 //-------------------------------------------------------------------

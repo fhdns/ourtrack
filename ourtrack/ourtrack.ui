@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>1200</width>
+    <height>592</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -86,13 +86,13 @@
      </layout>
     </item>
     <item row="1" column="0">
-     <layout class="QVBoxLayout" name="verticalLayout">
+     <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
        <widget class="QTableWidget" name="TableResult">
         <property name="minimumSize">
          <size>
-          <width>0</width>
-          <height>200</height>
+          <width>700</width>
+          <height>0</height>
          </size>
         </property>
         <property name="baseSize">
@@ -111,7 +111,7 @@
          <enum>QFrame::Sunken</enum>
         </property>
         <property name="editTriggers">
-         <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+         <set>QAbstractItemView::AnyKeyPressed</set>
         </property>
         <property name="dragEnabled">
          <bool>true</bool>
@@ -124,6 +124,9 @@
         </property>
         <property name="selectionBehavior">
          <enum>QAbstractItemView::SelectRows</enum>
+        </property>
+        <property name="verticalScrollMode">
+         <enum>QAbstractItemView::ScrollPerPixel</enum>
         </property>
         <property name="horizontalScrollMode">
          <enum>QAbstractItemView::ScrollPerPixel</enum>
@@ -156,7 +159,7 @@
          <bool>true</bool>
         </attribute>
         <attribute name="verticalHeaderDefaultSectionSize">
-         <number>30</number>
+         <number>40</number>
         </attribute>
        </widget>
       </item>
@@ -174,7 +177,7 @@
         <property name="minimumSize">
          <size>
           <width>0</width>
-          <height>0</height>
+          <height>500</height>
          </size>
         </property>
         <property name="maximumSize">
@@ -205,7 +208,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>1200</width>
      <height>21</height>
     </rect>
    </property>
@@ -232,6 +235,11 @@
   <action name="ActionGetLast">
    <property name="text">
     <string>Последние добавленные</string>
+   </property>
+  </action>
+  <action name="action_2">
+   <property name="text">
+    <string>Официальный сайт</string>
    </property>
   </action>
  </widget>

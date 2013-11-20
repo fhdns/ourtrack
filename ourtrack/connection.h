@@ -6,11 +6,6 @@
 #include <QObject>
 #include <QMutex>
 
-// Флаги серверу
-#define FLAG_FIND       0x00
-#define FLAG_ADD        0x01
-#define FLAG_LIKED      0x02
-
 class Connection : public QObject
 {
   Q_OBJECT
@@ -18,7 +13,7 @@ class Connection : public QObject
 public:
   Connection(QObject *parent = 0);
   ~Connection();
-  void Send(const QByteArray *sbuff, char flag = FLAG_FIND);
+  bool Send(const QByteArray *sbuff, char flag = FLAG_FIND);
 
 private slots:
   void Read();

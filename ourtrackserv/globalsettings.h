@@ -4,13 +4,17 @@
 //-------------------------------------------------------------------
 
 // Минимум букв в поисковом запросе
-#define MIN_CHAR_SEARCH 4 
+#define MIN_CHAR_SEARCH       4 
+// Минимум символов для названия нового торрента
+#define MIN_CHAR_ADD_NAME     10 
+// Минимум символов для описания нового торрента
+#define MIN_CHAR_ADD_DESC     100 
 
 // Порт прослушивания
 #define LISTEN_PORT     7777
 
 // Лимит количества результатов запрос
-#define QUERY_LIMIT     1000
+#define QUERY_LIMIT     100
 // Лимит количества результатов GetLast
 #define QUERY_LASTLIMIT 100
 
@@ -27,6 +31,7 @@
 #define FLAG_ADD        0x01
 #define FLAG_LIKED      0x02
 #define FLAG_LAST       0x03
+#define FLAG_PLDOWN     0x04
 
 
 //-------------------------------------------------------------------

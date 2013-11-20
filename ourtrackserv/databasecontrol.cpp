@@ -66,11 +66,10 @@ void DatabaseControl::GetFindResult(const QString &search_query, QVector<MainLis
   }
 
   result.clear();
-
   QSqlQuery query(db);
-  query.prepare(QString("SELECT * from torrents \
-                         WHERE name LIKE '%" + QRegularExpression::escape(search_query) + "%' \
-                         LIMIT " + QString::number(QUERY_LIMIT)));
+  query.prepare("SELECT * FROM `torrents` WHERE MATCH (name) AGAINST (:search_query) LIMIT :limit;");
+  query.bindValue(":search_query", search_query);
+  query.bindValue(":limit", QUERY_LIMIT);
 
   if (!query.exec())
   {
@@ -86,10 +85,11 @@ void DatabaseControl::GetFindResult(const QString &search_query, QVector<MainLis
     item.category     = query.value(rec.indexOf("category")).toInt();
     item.name         = query.value(rec.indexOf("name")).toString();
     item.description  = query.value(rec.indexOf("description")).toString();
-    item.reg_time     = query.value(rec.indexOf("size")).toFloat();
-    item.reg_time     = query.value(rec.indexOf("reg_time")).toString();
+    item.size         = query.value(rec.indexOf("size")).toLongLong();
+    item.reg_time     = query.value(rec.indexOf("reg_time")).toDateTime().toString("yyyy-MM-dd hh:mm");
     item.hash         = query.value(rec.indexOf("hash")).toString();
     item.user_id      = query.value(rec.indexOf("user_id")).toInt();
+    item.download     = query.value(rec.indexOf("download")).toInt();
     item.liked        = query.value(rec.indexOf("liked")).toInt();
     result.push_back(item);
   }
@@ -104,23 +104,33 @@ void DatabaseControl::AddTorrentItem(const MainListItem &item)
     qDebug() << "Find error: Database is not open";
     return;
   }
+
+  // Проверяем значения
+  if (item.name.length() < MIN_CHAR_ADD_NAME)
+    return;
+  if (item.description.length() < MIN_CHAR_ADD_DESC)
+    return;
+  if (!item.size)
+    return;
+  if (!item.hash.length())
+    return;
     
   QSqlQuery query(db);
 
   query.prepare("INSERT INTO `torrents_temp` \
-                (category, name, description, size, reg_time, hash, user_id, liked) \
-                VALUES (:c,:n,:d,:s,:r,:h,:u,:l);");
-
-  #define ESCAPE(str) QRegularExpression::escape(str)
+                (category, name, description, size, reg_time, hash, user_id, download, liked) \
+                VALUES (:c,:n,:d,:s,:r,:h,:u, :d, :l);");
 
   query.bindValue(":c", item.category);
-  query.bindValue(":n", ESCAPE(item.name));
-  query.bindValue(":d", ESCAPE(item.description));
+  query.bindValue(":n", item.name);
+  query.bindValue(":d", item.description);
   query.bindValue(":s", item.size);
-  query.bindValue(":r", "now");
+  query.bindValue(":r", QDateTime::currentDateTime().toString("dd-MMM-yy hh:mm"));
   query.bindValue(":h", item.hash);
-  query.bindValue(":u", item.user_id);
+  query.bindValue(":u", 0);
+  query.bindValue(":d", 0);
   query.bindValue(":l", 0);
+
 
   if (!query.exec())
   {
@@ -131,7 +141,7 @@ void DatabaseControl::AddTorrentItem(const MainListItem &item)
 
 //-------------------------------------------------------------------
 
-void DatabaseControl::LikedTorrent(int id)
+void DatabaseControl::LikedTorrent(long long id)
 {  
   if(!db.isOpen())
   {
@@ -146,6 +156,27 @@ void DatabaseControl::LikedTorrent(int id)
   if (!query.exec())
   {
     qDebug() << "Unable to add liked: " << query.lastError(); 
+    return;
+  }
+}
+
+//-------------------------------------------------------------------
+
+void DatabaseControl::PlusDownloadTorrent(long long id)
+{  
+  if(!db.isOpen())
+  {
+    qDebug() << "Find error: Database is not open";
+    return;
+  }
+    
+  QSqlQuery query(db);
+  query.prepare("UPDATE torrents SET download = (download + 1) WHERE id = :id");
+  query.bindValue(":id", id);
+
+  if (!query.exec())
+  {
+    qDebug() << "Unable to add download: " << query.lastError(); 
     return;
   }
 }
@@ -179,10 +210,11 @@ void DatabaseControl::GetLastResult(QVector<MainListItem> &result)
     item.category     = query.value(rec.indexOf("category")).toInt();
     item.name         = query.value(rec.indexOf("name")).toString();
     item.description  = query.value(rec.indexOf("description")).toString();
-    item.reg_time     = query.value(rec.indexOf("size")).toFloat();
-    item.reg_time     = query.value(rec.indexOf("reg_time")).toString();
+    item.size         = query.value(rec.indexOf("size")).toLongLong();
+    item.reg_time     = query.value(rec.indexOf("reg_time")).toDateTime().toString("yyyy-MM-dd hh:mm");
     item.hash         = query.value(rec.indexOf("hash")).toString();
     item.user_id      = query.value(rec.indexOf("user_id")).toInt();
+    item.download     = query.value(rec.indexOf("download")).toInt();
     item.liked        = query.value(rec.indexOf("liked")).toInt();
     result.push_back(item);
   }

@@ -25,6 +25,7 @@ QByteArray ourtrack::Serialize(const QVector<MainListItem> &items)
     m.insert(counter++, it->reg_time);
     m.insert(counter++, it->hash);
     m.insert(counter++, it->user_id);
+    m.insert(counter++, it->download);
     m.insert(counter++, it->liked);
   }
 
@@ -60,13 +61,13 @@ void ourtrack::DeSerialize(const QByteArray &buffer)
     item.category     = m.value(counter++).toInt();
     item.name         = m.value(counter++).toString();
     item.description  = m.value(counter++).toString();
-    item.size         = m.value(counter++).toInt();
+    item.size         = m.value(counter++).toLongLong();
     item.reg_time     = m.value(counter++).toString();
     item.hash         = m.value(counter++).toString();
     item.user_id      = m.value(counter++).toInt();
+    item.download     = m.value(counter++).toInt();
     item.liked        = m.value(counter++).toInt();
     items.push_back(item);
   }
 }
-
 //-------------------------------------------------------------------

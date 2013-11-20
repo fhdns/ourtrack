@@ -4,7 +4,7 @@
 //-------------------------------------------------------------------
 
 // Столбцы поисковой выдачи
-#define COL_COUNT             9
+#define COL_COUNT             10
 
 //-------------------------------------------------------------------
 
@@ -15,10 +15,11 @@ struct MainListItem
   int       category;
   QString   name;
   QString   description;
-  int       size;
+  long long size;
   QString   reg_time;
   QString   hash;
   int       user_id;
+  int       download;
   int       liked;
 };
 

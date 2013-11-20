@@ -2,5 +2,9 @@
     <qresource prefix="/ourtrack">
         <file>camera.png</file>
         <file>explorer.png</file>
+        <file>key.png</file>
+        <file>download.png</file>
+        <file>like-icon.png</file>
+        <file>discription_icon.gif</file>
     </qresource>
 </RCC>

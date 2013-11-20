@@ -33,6 +33,15 @@
       <Extensions>cpp;moc</Extensions>
       <SourceControlFiles>False</SourceControlFiles>
     </Filter>
+    <Filter Include="Converting">
+      <UniqueIdentifier>{18090f75-12a8-4409-8b12-643d4707cc31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Converting\h">
+      <UniqueIdentifier>{83f7f5dc-fea4-4b06-ad2d-3fe1d9adf0fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Converting\s">
+      <UniqueIdentifier>{6c7e1b4b-f091-4a8a-8c6d-25c09264206e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -71,8 +80,17 @@
     <ClCompile Include="GeneratedFiles\Release\moc_connection.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="convert.cpp">
+    <ClCompile Include="ourtrack_addtorrent.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bencodeparser.cpp">
+      <Filter>Converting\s</Filter>
+    </ClCompile>
+    <ClCompile Include="convert.cpp">
+      <Filter>Converting\s</Filter>
+    </ClCompile>
+    <ClCompile Include="metainfo.cpp">
+      <Filter>Converting\s</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -108,8 +126,14 @@
     <ClInclude Include="GeneratedFiles\ui_addtorrent.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
+    <ClInclude Include="bencodeparser.h">
+      <Filter>Converting\h</Filter>
+    </ClInclude>
     <ClInclude Include="convert.h">
-      <Filter>Header Files</Filter>
+      <Filter>Converting\h</Filter>
+    </ClInclude>
+    <ClInclude Include="metainfo.h">
+      <Filter>Converting\h</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

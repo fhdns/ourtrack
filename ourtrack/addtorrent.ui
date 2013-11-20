@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>522</width>
-    <height>473</height>
+    <width>566</width>
+    <height>554</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,6 +15,67 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_7">
+     <item>
+      <widget class="QLabel" name="labelName_2">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>55</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>55</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Шаблон:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QPushButton" name="ButtonVideoTemplate">
+         <property name="text">
+          <string>Видео</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="ButtonSoftTemplate">
+         <property name="text">
+          <string>Софт</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="ButtonAudioTemplate">
+         <property name="text">
+          <string>Аудио</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="ButtonGameTemplate">
+         <property name="text">
+          <string>Игры</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QLabel" name="labelName">
@@ -44,37 +105,12 @@
      <item>
       <widget class="QLineEdit" name="EditName"/>
      </item>
-    </layout>
-   </item>
-   <item row="1" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QLabel" name="labelCategory">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>55</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>55</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Категория:</string>
+      <widget class="QComboBox" name="CBoxCategory">
+       <property name="currentText">
+        <string/>
        </property>
       </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="EditCategory"/>
      </item>
     </layout>
    </item>
@@ -112,14 +148,25 @@
       </widget>
      </item>
      <item>
-      <widget class="QTextEdit" name="EditDescription"/>
+      <widget class="QTextEdit" name="EditDescription">
+       <property name="readOnly">
+        <bool>false</bool>
+       </property>
+       <property name="html">
+        <string notr="true">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
    <item row="3" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout_5">
+    <layout class="QHBoxLayout" name="horizontalLayout_8">
      <item>
-      <widget class="QLabel" name="labelSize">
+      <widget class="QLabel" name="labelTorrent">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -132,19 +179,24 @@
          <height>0</height>
         </size>
        </property>
-       <property name="maximumSize">
-        <size>
-         <width>55</width>
-         <height>16777215</height>
-        </size>
-       </property>
        <property name="text">
-        <string>Размер:</string>
+        <string>Торрент:</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="EditSize"/>
+      <widget class="QLineEdit" name="EditPathTorrent">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="ButtonOpenDialogTorrent">
+       <property name="text">
+        <string>Выбрать</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -176,11 +228,51 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="EditHash"/>
+      <widget class="QLineEdit" name="EditHash">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
    <item row="5" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_5">
+     <item>
+      <widget class="QLabel" name="labelSize">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>55</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>55</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Размер:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="EditSize">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="6" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout_6">
      <item>
       <widget class="QPushButton" name="ButtonAddTorrent">
