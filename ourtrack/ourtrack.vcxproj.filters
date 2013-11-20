@@ -62,6 +62,18 @@
     <ClCompile Include="serialization.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="connection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_connection.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_connection.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="convert.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="ourtrack.h">
@@ -76,6 +88,12 @@
     <CustomBuild Include="proxyserver.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="addtorrent.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="connection.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_ourtrack.h">
@@ -85,6 +103,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="mainlistitem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_addtorrent.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="convert.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

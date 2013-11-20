@@ -1,128 +1,69 @@
 #include <QFile>
 #include <QList>
-#include <QUrl>
+#include <QMutex>
 #include <QStringList>
 #include <QDesktopServices>
 #include "ourtrack.h"
-
-//-------------------------------------------------------------------
-
-namespace convert
-{
-  QStringList default_trackers()
-  {
-    QStringList list;
-    list << "http://retracker.local/announce";
-    list << "udp://tracker.openbittorrent.com:80/announce";
-    list << "udp://tracker.publicbt.com:80/announce";
-    list << "udp://tracker.ccc.de:80/announce";
-    return list;
-  }
-
-  QString magnetUrl(QString hash, QString name, qlonglong size, bool urlencode)
-  {
-    QString magnet = "magnet:?xt=urn:btih:" + hash +
-      "&dn=" + (urlencode ? QUrl::toPercentEncoding(name) : name) +
-      "&xl=" + QString::number(size);
-    QStringList trackers_list = default_trackers();
-    foreach (QString tracker, trackers_list)
-    {
-      if (!tracker.isEmpty())
-      {
-        magnet += "&tr=" + (urlencode ? QUrl::toPercentEncoding(tracker) : tracker);
-      }
-    }
-    return magnet;
-  }
-} // namespace convert
+#include "convert.h"
 
 //-------------------------------------------------------------------
 
 ourtrack::ourtrack(QWidget *parent)
   : QMainWindow(parent)
 {
-  ui.setupUi(this);  
+  // Установка UI
+  ui_main.setupUi(this);
 
-  // Соединяем сигналы с UI со слотами  
-  QObject::connect(ui.ButtonFind, SIGNAL(clicked()), this, SLOT(SendFindQuery()));
-  QObject::connect(ui.TableResult, SIGNAL(itemActivated(QTableWidgetItem *)), this, SLOT(ResultItemActivated(QTableWidgetItem *)));
-  QObject::connect(ui.TableResult, SIGNAL(itemPressed(QTableWidgetItem *)), this, SLOT(ResultItemActivated(QTableWidgetItem *)));
-  QObject::connect(ui.DescriptionBrowser, SIGNAL(linkClicked(const QUrl & )), this, SLOT(linkClickedDownload(const QUrl & )));
+  // Инициализация формы добавления  
+  add_form = new QWidget;
+  ui_add.setupUi(add_form);
+  // Соединяем сигналы формы добавления со слотами
+  QObject::connect(ui_add.ButtonAddTorrent, SIGNAL(clicked()), this, SLOT(AddTorrent()));
+  QObject::connect(ui_add.ButtonCancel, SIGNAL(clicked()), this, SLOT(AddTorrentFormClose()));
+  
 
-  ui.DescriptionBrowser->page()->setLinkDelegationPolicy( QWebPage::DelegateAllLinks );
+  // При получении ответа от сервера, выводим на форму
+  QObject::connect(&conn, SIGNAL(SignalReadFinish(QByteArray*)), this, SLOT(DissectServerAnswer(QByteArray*)));
 
-  ui.DescriptionBrowser->setUrl(QUrl(PROMO_PAGE_URL));    // Страница приземления
+  // Соединяем сигналы основного UI со слотами
+  QObject::connect(ui_main.ButtonFind, SIGNAL(clicked()), this, SLOT(SendFindQuery()));
+  QObject::connect(ui_main.TableResult, SIGNAL(itemActivated(QTableWidgetItem *)), this, SLOT(ResultItemActivated(QTableWidgetItem *)));
+  QObject::connect(ui_main.TableResult, SIGNAL(itemPressed(QTableWidgetItem *)), this, SLOT(ResultItemActivated(QTableWidgetItem *)));
+  QObject::connect(ui_main.DescriptionBrowser, SIGNAL(linkClicked(const QUrl & )), this, SLOT(linkClickedDownload(const QUrl & )));
+  // Меню
+  QObject::connect(ui_main.ActionAddTorrent, SIGNAL(triggered()), this, SLOT(AddTorrentFormOpen()));
+  QObject::connect(ui_main.ActionGetLast, SIGNAL(triggered()), this, SLOT(GetLastTorrent()));
 
-  // Загружаем конфигурацию
-  ConfLoad();
-
-
-  // Сокет для соединения с сервером
-  socket = new QTcpSocket(this);
-  connect(socket, SIGNAL(readyRead()), this, SLOT(ReadServer()));
-
-  // Привязка прокси-сервера к сокету
-#ifdef PROXY_SERVER
-  proxy_srv = new ProxyServer(socket);
-  proxy_srv->start();
-#endif
+  // Настройка WebView
+  ui_main.DescriptionBrowser->page()->setLinkDelegationPolicy( QWebPage::DelegateAllLinks );
+  ui_main.DescriptionBrowser->setUrl(QUrl(PROMO_PAGE_URL));    // Страница приземления
 }
 
 //-------------------------------------------------------------------
+
 ourtrack::~ourtrack()
 {
-  socket->close();
-  delete socket;
-#ifdef PROXY_SERVER
-  proxy_srv->stop();
-  delete proxy_srv;
-#endif
+  delete add_form;
 }
 
 //-------------------------------------------------------------------
 
-bool ourtrack::ConfLoad()
-{
-  // Открываем файл с со списком доступных адресов серверов
-  QFile hosts(SERVER_HOSTS_PATH);
-  if(hosts.open(QIODevice::ReadWrite))
-  {
-    while (!hosts.atEnd())
-    {
-      char sep = 0x3A; // ":"
-      QList<QByteArray> current_host_info = hosts.readLine().split(sep);  
-
-      host_info addr;
-      addr.host = current_host_info.at(0);
-      addr.port = current_host_info.at(1).toULongLong();
-      avaible_hosts.push_back(addr);
-    }
-    hosts.close();
-  }
-
-  // Если хосты не определены, то пускаем юзера в программу, но отключаем возможность соединения
-  if (!avaible_hosts.size())
-  {    
-    QMessageBox::critical(this, "Внимание", QString("Не найдено ни одной записи %1").arg(SERVER_HOSTS_PATH));
-    ui.ButtonFind->setEnabled(0);
-    return false;
-  }
-
-  return true;
-}
-
-//-------------------------------------------------------------------
 void ourtrack::ShowList()
 {
-  QTableWidget *table = ui.TableResult;
-  if (!table) return;
-  
+  QTableWidget *table = ui_main.TableResult;
+  if (!table)
+  {
+      return;
+  }  
+
   if (!items.size())
   {  
-    QMessageBox::warning(this, "Внимание", "Ничего не найдено");
+    table->clearContents();
+    table->setRowCount(0);
+    QMessageBox::warning(0, "Внимание", "Ничего не найдено");
     return;
   }
-
+  
   table->clear();
   table->setColumnCount(6);
   table->setRowCount(items.size());
@@ -139,19 +80,19 @@ void ourtrack::ShowList()
     NEW_ITEM_TABLE(i, 0, widget_id,     QString::number(items[i].id));
     NEW_ITEM_TABLE(i, 1, widget_cat,    QString::number(items[i].category));
     NEW_ITEM_TABLE(i, 2, widget_name,   items[i].name);
-    NEW_ITEM_TABLE(i, 3, widget_size,   QString::number((long long)items[i].size));
+    NEW_ITEM_TABLE(i, 3, widget_size,   QString::number(items[i].size));
     NEW_ITEM_TABLE(i, 4, widget_rtime,  items[i].reg_time);
     NEW_ITEM_TABLE(i, 5, widget_liked,  QString::number(items[i].liked));
   }
-  
-  table->resizeColumnsToContents();
+
+  table->resizeColumnsToContents(); 
 }
 
 //-------------------------------------------------------------------
 
 void ourtrack::ResultItemActivated(QTableWidgetItem *item)
 {
-  ui.DescriptionBrowser->setHtml(GetDescHtml(item->row()));
+  ui_main.DescriptionBrowser->setHtml(GetDescHtml(item->row()));
 }
 
 //-------------------------------------------------------------------
@@ -161,24 +102,27 @@ QString ourtrack::GetDescHtml(const int num)
   MainListItem *MainItem = &items[num];
 
   QString html;
+  QTextStream in(&html);
 
   // Заголовок
-  html += QString("<h3>%1</h3><hr>").arg(MainItem->name);
-
-  // Описание
-  html += MainItem->description;
+  in << "<h3>" << MainItem->name << "</h3><hr>";  
 
   // Ссылка
-  html += QString("<a href='%1'>Скачать</a> ").arg(convert::magnetUrl(MainItem->hash,
-                                                                      MainItem->name,
-                                                                      MainItem->size,
-                                                                      false));
+  in << QString("<a href='%1'>Скачать</a>; ").arg(convert::magnetUrl(MainItem->hash,
+                                                                   MainItem->name,
+                                                                   MainItem->size,
+                                                                   false));
+  // Размер
+  in << "Размер: " + QString::number(MainItem->size/(1024.00 * 1024.00)) + " МБ; ";
+
+  // Дата
+  in << "Дата: " + MainItem->reg_time + "; ";
   
-  // Размер и дата
-  html += QString("(Размер: %1 МБ").arg(MainItem->size);
+  // Дата
+  in << "Рейтинг: +" + QString::number(MainItem->liked) + "; ";
 
   // Описание
-  html += QString("<br>%1").arg(MainItem->description);
+  in << "<hr><br>" << MainItem->description;
 
   return html;
 }
@@ -188,7 +132,7 @@ QString ourtrack::GetDescHtml(const int num)
 void ourtrack::SendFindQuery()
 {
   // Забираем запрос с формы
-  QString search_query = ui.EditFind->text();
+  QString search_query = ui_main.EditFind->text();
   // Убираем лишние пробелы
   search_query.replace("  ", " ");
 
@@ -196,79 +140,79 @@ void ourtrack::SendFindQuery()
   if (search_query.length() < MIN_CHAR_SEARCH)
   {    
     QString msg = "Минимальная длина поискового запроса - " + QString::number(MIN_CHAR_SEARCH) + " символа(ов)";
-    QMessageBox::warning(this, "Внимание", msg);
+    QMessageBox::warning(0, "Внимание", msg);
     return;
   }
 
-  QByteArray sbuf(search_query.toStdString().c_str());
-
-  // Соединяемся с сервером
-  connect_to_host:
-  host_info server_addr = GetRandomHost();
-  socket->connectToHost(server_addr.host, server_addr.port);
-  if (!socket->waitForConnected(TIME_WAIT_FOR_CONNECT))
-  {
-    QMessageBox::warning(this, "Внимание", "Превышено время ожидания соединения");
-
-    // Соединиться с другим сервером?
-    if ( QMessageBox::question(this, "Переподключиться?", "Попробовать еще с другим сервером?",
-                               QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes)
-    {
-      goto connect_to_host;
-    }
-
-    socket->close();
-    return;
-  }  
-
-  // Отправляем наш поисковый запрос
-  socket->write(sbuf);
-  if (!socket->waitForBytesWritten(TIME_WAIT_FOR_WRITTEN))
-  {        
-    QMessageBox::warning(this, "Внимание", "Превышено время ожидания отправки поискового запроса");
-    socket->close();
-    return;
-  }
+  // Отправляем на сервер
+  conn.Send(&search_query.toUtf8());
 }
 
-//-------------------------------------------------------------------
-
-void ourtrack::ReadServer()
-{
-  // Получаем сокет того, кто вызвал метод
-  QTcpSocket* socket = (QTcpSocket*)sender();
-
-  // Получаем данные от сервера и десериализуем в вектор элементов списка
-  QByteArray recvbuff;
-
-  while (!socket->atEnd())
-  {
-    recvbuff.push_back(socket->read(MAX_SIZE_RECV));
-    socket->waitForReadyRead();
-  }
-
-  DeSerialize(recvbuff);
-  
-  socket->close();
-  ShowList();
-}
-
-//-------------------------------------------------------------------
-
-ourtrack::host_info ourtrack::GetRandomHost()
-{
-  quint16 rnd = qrand();
-  if (rnd > avaible_hosts.size())
-    rnd %= avaible_hosts.size();
-
-  return avaible_hosts[rnd];
-}
 //-------------------------------------------------------------------
 
 void ourtrack::linkClickedDownload(const QUrl& url)
 {  
   QDesktopServices::openUrl(url);
   return;
+}
+
+//-------------------------------------------------------------------
+
+void ourtrack::AddTorrentFormOpen()
+{
+  add_form->show();
+}
+
+void ourtrack::AddTorrentFormClose()
+{
+  add_form->close();
+}
+
+//-------------------------------------------------------------------
+
+void ourtrack::AddTorrent()
+{
+  // Добавление торрента
+  QVector<MainListItem> items;
+  // Собираем информацию с формы
+  items.push_back(AddFormToListItem());
+  // Сериализуем
+  QByteArray sbuff = Serialize(items);
+  // Отправляем на сервер
+  conn.Send(&sbuff, FLAG_ADD);
+}
+
+//-------------------------------------------------------------------
+
+void ourtrack::GetLastTorrent()
+{
+  QByteArray mgs("getlast");
+  conn.Send(&mgs, 0x03);
+}
+
+//-------------------------------------------------------------------
+
+void ourtrack::DissectServerAnswer(QByteArray *data)
+{
+  // Первый байт - флаг
+  // <!-- dissect first byte -->
+  // Сериализуем в вектор
+  DeSerialize(*data);
+  // Выводим
+  ShowList();
+}
+
+//-------------------------------------------------------------------
+
+MainListItem ourtrack::AddFormToListItem()
+{
+  MainListItem result;
+  result.name         = ui_add.EditName->text();
+  result.category     = ui_add.EditCategory->text().toInt();
+  result.description  = ui_add.EditDescription->document()->toHtml();
+  result.hash         = ui_add.EditHash->text();
+  result.size         = ui_add.EditSize->text().toInt();
+  return result;
 }
 
 //-------------------------------------------------------------------

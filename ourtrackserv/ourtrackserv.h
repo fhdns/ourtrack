@@ -24,10 +24,16 @@ private slots:
   void slotNewUser();     // Вызывается при новом соединении
   void slotReadClient();  // Вызывается при чтении сокета клиента
 
+  void FindQueryDissect(QTcpSocket *clientSocket);  // Разбор запросов поиска
+  void AddQueryDissect(QTcpSocket *clientSocket);   // Разбор запроса добавления нового торрента
+  void LikeQueryDissect(QTcpSocket *clientSocket);  // Разбор добавления лайка
+  void GetLastQueryDissect(QTcpSocket *clientSocket);  // Список последних раздач
+
 private:
-  inline bool SocketCheck();
-  inline bool SearchQueryCheck(const QString &query);
-  QByteArray  Serialize(const QVector<MainListItem> &items);
+  inline bool           SocketCheck();
+  inline bool           SearchQueryCheck(const QString &query);
+  QByteArray            Serialize(const QVector<MainListItem> &items);
+  QVector<MainListItem> DeSerialize(const QByteArray &buffer);
 
   DatabaseControl         db_ctrl;      // Модуль работы с БД
   QTcpServer              *tcpServer;   // Сервер приема соединений
