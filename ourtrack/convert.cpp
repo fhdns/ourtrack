@@ -41,7 +41,7 @@ float convert::ByteToMbyte(long long byte)
 //-------------------------------------------------------------------
 
 // BASE32
-static QByteArray convert::base32Encode(uchar *input, int inputLength)
+QByteArray convert::base32Encode(uchar *input, int inputLength)
 {
     static const char *base32Alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"; //Used for Base32 conversions - RFC4648 standard
 
