@@ -151,7 +151,8 @@ void ourtrack::SendFindQuery()
   }
 
   // Отправляем на сервер
-  conn.Send(&search_query.toUtf8(), FLAG_FIND);
+  QByteArray tmp = search_query.toUtf8();
+  conn.Send(&tmp, FLAG_FIND);
   statusBar()->showMessage(tr("Ожидание ответа от сервера..."), 10000);
 }
 
