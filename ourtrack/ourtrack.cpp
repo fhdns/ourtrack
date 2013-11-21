@@ -2,7 +2,7 @@
 #include <QList>
 #include <QStringList>
 #include <QDesktopServices>
-#include <QFiledialog>
+#include <QFileDialog>
 #include "ourtrack.h"
 #include "convert.h"
 
