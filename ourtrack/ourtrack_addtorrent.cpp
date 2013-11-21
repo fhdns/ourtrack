@@ -4,7 +4,7 @@
 #include <QList>
 #include <QStringList>
 #include <QDesktopServices>
-#include <QFiledialog>
+#include <QFileDialog>
 
 
 void ourtrack::AddTorrent()
