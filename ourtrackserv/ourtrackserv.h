@@ -16,20 +16,20 @@ public:
   ourtrackserv(QObject *parent = 0);
   ~ourtrackserv();
 
-  // Управление сервером
+  // Server control
   void on_starting();
   void on_stoping();
 
 private slots:
-  void slotNewUser();     // Вызывается при новом соединении
-  void slotReadClient();  // Вызывается при чтении сокета клиента
+  void slotNewUser();     // from signal newConnection()
+  void slotReadClient();  // from signal Read()
 
-  // Обработка запроса клиента в зависимости от флага
-  void FindQueryDissect(QTcpSocket *clientSocket);  // Разбор запросов поиска (FLAG_FIND)
-  void AddQueryDissect(QTcpSocket *clientSocket);   // Разбор запроса добавления нового торрента (FLAG_ADD)
-  void LikeQueryDissect(QTcpSocket *clientSocket);  // Разбор добавления лайка (FLAG_LIKE)
-  void GetLastQueryDissect(QTcpSocket *clientSocket);  // Список последних раздач (FLAG_LAST)
-  void PlusDownloadQueryDissect(QTcpSocket *clientSocket);  // Разбор добавления числа скачек
+  // Processing the client request
+  void FindQueryDissect(QTcpSocket *clientSocket);  // find (FLAG_FIND)
+  void AddQueryDissect(QTcpSocket *clientSocket);   // new torrent (FLAG_ADD)
+  void LikeQueryDissect(QTcpSocket *clientSocket);  // add like (FLAG_LIKE)
+  void GetLastQueryDissect(QTcpSocket *clientSocket);  // list last torrent (FLAG_LAST)
+  void PlusDownloadQueryDissect(QTcpSocket *clientSocket);  // new download
 
 private:
   inline bool           SocketCheck();
@@ -37,9 +37,9 @@ private:
   QByteArray            Serialize(const QVector<MainListItem> &items);
   QVector<MainListItem> DeSerialize(const QByteArray &buffer);
 
-  DatabaseControl         db_ctrl;      // Модуль работы с БД
-  QTcpServer              *tcpServer;   // Сервер приема соединений
-  QMap<int, QTcpSocket*>  SClients;     // Соединенные клиенты
+  DatabaseControl         db_ctrl;
+  QTcpServer              *tcpServer;
+  QMap<int, QTcpSocket*>  SClients;     // CLients
 
 };
 

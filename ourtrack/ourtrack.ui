@@ -21,7 +21,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="ourtrack.qrc">
-    <normaloff>:/ourtrack/explorer.png</normaloff>:/ourtrack/explorer.png</iconset>
+    <normaloff>:/ourtrack/Images/explorer.png</normaloff>:/ourtrack/Images/explorer.png</iconset>
   </property>
   <property name="layoutDirection">
    <enum>Qt::LeftToRight</enum>
@@ -70,7 +70,7 @@
         </property>
         <property name="icon">
          <iconset resource="ourtrack.qrc">
-          <normaloff>:/ourtrack/camera.png</normaloff>:/ourtrack/camera.png</iconset>
+          <normaloff>:/ourtrack/Images/camera.png</normaloff>:/ourtrack/Images/camera.png</iconset>
         </property>
         <property name="autoDefault">
          <bool>true</bool>
@@ -211,7 +211,7 @@
    </property>
    <widget class="QMenu" name="menuHome">
     <property name="title">
-     <string>Раздачи</string>
+     <string>Tracker</string>
     </property>
     <addaction name="ActionGetLast"/>
     <addaction name="ActionAddTorrent"/>
@@ -226,12 +226,12 @@
   </action>
   <action name="ActionAddTorrent">
    <property name="text">
-    <string>Добавить</string>
+    <string>Add new torrent</string>
    </property>
   </action>
   <action name="ActionGetLast">
    <property name="text">
-    <string>Последние добавленные</string>
+    <string>Recently Added</string>
    </property>
   </action>
   <action name="action_2">

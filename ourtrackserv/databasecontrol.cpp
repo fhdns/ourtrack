@@ -110,7 +110,7 @@ void DatabaseControl::AddTorrentItem(const MainListItem &item)
     return;
   }
 
-  // Проверяем значения
+  // Check
   if (item.name.length() < MIN_CHAR_ADD_NAME)
     return;
   if (item.description.length() < MIN_CHAR_ADD_DESC)

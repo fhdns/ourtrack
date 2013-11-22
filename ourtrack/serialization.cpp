@@ -4,17 +4,15 @@
 
 QByteArray ourtrack::Serialize(const QVector<MainListItem> &items)
 {
-  // Результирующий буффер
+  // Result buffer
   QByteArray buffer;
   QDataStream out(&buffer, QIODevice::WriteOnly);
 
-  QMap<quint16, QVariant> m;  // Карта для записи элементов класса для последующей сериализации
-  int counter = 0;            // Количество записей в карту (используется как ключ)
+  QMap<quint16, QVariant> m;
+  int counter = 0;
 
-  // Добавляем количество элементов (потребуется для десериализации)
   m.insert(counter++, items.size());
 
-  // Добавляем все элементы
   for (auto it = items.begin(); it != items.end(); ++it)
   {
     m.insert(counter++, it->id);
@@ -37,23 +35,18 @@ QByteArray ourtrack::Serialize(const QVector<MainListItem> &items)
 
 void ourtrack::DeSerialize(const QByteArray &buffer)
 {
-  // Очищаем существующий вектор элементов поисковой выдачи
   items.clear();
 
   QByteArray uncompr_buffer = qUncompress(buffer);
 
   QDataStream in(&uncompr_buffer, QIODevice::ReadOnly);
 
-  QMap<quint16, QVariant> m;  // Карта для записи элементов класса
-  int counter = 0;            // Количество записей в карту (используется как ключ)
+  QMap<quint16, QVariant> m;
+  int counter = 0;
 
-  // Заполняем карту
   in >> m;
 
-  // Забираем количество элементов
   int count = m.value(counter++).toInt();
-
-  // Добавляем все элементы
   for (int i = 0; i < count; i++)
   {
     MainListItem item;

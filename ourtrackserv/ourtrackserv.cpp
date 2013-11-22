@@ -78,7 +78,7 @@ void ourtrackserv::slotReadClient()
   QTcpSocket* clientSocket = (QTcpSocket*)sender();
   int idusersocs = clientSocket->socketDescriptor();
 
-  // Получаем флаг запроса
+  // Get flag
   char flag;
   if (!clientSocket->getChar(&flag))
   {
@@ -132,19 +132,18 @@ void ourtrackserv::FindQueryDissect(QTcpSocket *clientSocket)
   int idusersocs = clientSocket->socketDescriptor();
   QString search_query = clientSocket->readAll();
 
-  // Если длина запроса меньше требуемой, то предварительно закрываем сокет
   if (!SearchQueryCheck(search_query))
   {
     return;
   }
   qDebug() << search_query;
 
-  QVector<MainListItem> search_results;                 // результат выборки, которы будет отпарвлен клиенту
-  db_ctrl.GetFindResult(search_query, search_results);  // функция выборки, заполяет search_results
+  QVector<MainListItem> search_results;                 
+  db_ctrl.GetFindResult(search_query, search_results);
 
-  QByteArray sbuff = Serialize(search_results);         // сериализуем в пригодный для отправки буффер
+  QByteArray sbuff = Serialize(search_results);
 
-  clientSocket->write(sbuff);                           // пишем в сокет
+  clientSocket->write(sbuff); 
 
   if (!clientSocket->waitForBytesWritten())
   {
@@ -158,13 +157,10 @@ void ourtrackserv::FindQueryDissect(QTcpSocket *clientSocket)
 void ourtrackserv::AddQueryDissect(QTcpSocket *clientSocket)
 {
   QByteArray recvbuff = clientSocket->readAll();
-  //Десериализуем вектор
   QVector<MainListItem> items = DeSerialize(recvbuff);
 
-  // Проверяем значения на добавление и добавляем
   for (auto it = items.begin(); it != items.end(); it++)
   {
-    // Добавляем в БД 
     db_ctrl.AddTorrentItem(*it); 
   }
 
@@ -202,11 +198,11 @@ void ourtrackserv::PlusDownloadQueryDissect(QTcpSocket *clientSocket)
 
 void ourtrackserv::GetLastQueryDissect(QTcpSocket *clientSocket)
 {
-  QVector<MainListItem> search_results;                 // результат выборки, которы будет отпарвлен клиенту
-  db_ctrl.GetLastResult(search_results);                // функция запроса последних добавлений, заполяет search_results
+  QVector<MainListItem> search_results;
+  db_ctrl.GetLastResult(search_results);
 
-  QByteArray sbuff = Serialize(search_results);         // сериализуем в пригодный для отправки буффер
-  clientSocket->write(sbuff);                           // пишем в сокет
+  QByteArray sbuff = Serialize(search_results);
+  clientSocket->write(sbuff);
 
   if (!clientSocket->waitForBytesWritten())
   {

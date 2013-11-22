@@ -3,22 +3,21 @@
 
 //-------------------------------------------------------------------
 
-// Минимум букв в поисковом запросе
+// Minimum symbols for search line
 #define MIN_CHAR_SEARCH       4 
-// Минимум символов для названия нового торрента
+// Minimum symbols for new torrent name
 #define MIN_CHAR_ADD_NAME     10 
-// Минимум символов для описания нового торрента
+// Minimum symbols for description new torrent
 #define MIN_CHAR_ADD_DESC     100 
-
-// Порт прослушивания
+ 
 #define LISTEN_PORT     7777
 
-// Лимит количества результатов запрос
+// Db select limit
 #define QUERY_LIMIT     100
-// Лимит количества результатов GetLast
+// for get last
 #define QUERY_LASTLIMIT 100
 
-// Настройка базы данных
+// Db settings
 #define DB_DRIVER       "QMYSQL"
 #define DB_NAME         "ourtrack"
 #define DB_HOST         "localhost"
@@ -26,7 +25,7 @@
 #define DB_USER         "root"
 #define DB_PASS         ""
 
-// Флаги от клиента
+// Flags
 #define FLAG_FIND       0x00
 #define FLAG_ADD        0x01
 #define FLAG_LIKED      0x02

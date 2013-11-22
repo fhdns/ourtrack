@@ -9,25 +9,26 @@
 
 void ourtrack::AddTorrent()
 {
-  // Собираем информацию с формы
+  // Get info from form
   MainListItem itm;
   if (!AddFormToListItem(itm))
     return;
   
   QVector<MainListItem> items;
   items.push_back(itm);
-  // Сериализуем
+
   QByteArray sbuff = Serialize(items);
-  // Отправляем на сервер
+
+  // Send
   if (!conn.Send(&sbuff, FLAG_ADD))
   {
-    QMessageBox::critical(0, tr("Ошибка"), tr("Раздача не была добавлена на сервер"));
+    QMessageBox::critical(0, tr("Error"), tr("Torrent wasn't sent to server"));
     return;
   }
 
-  if (QMessageBox::warning(0, tr("Добавлено"),
-                           tr("Торрент был отправлен на сервер и будет доступен после проверки модератором\n\r\
-                           Добавить еще одну раздачу?"), QMessageBox::Yes|QMessageBox::No) == QMessageBox::No)
+  if (QMessageBox::warning(0, tr("Added"),
+                           tr("Torrent has been sent to the server and will be available after being moderated\n\r\
+                           Add another torrent?"), QMessageBox::Yes|QMessageBox::No) == QMessageBox::No)
   {
     add_form->close();
   }
@@ -35,41 +36,40 @@ void ourtrack::AddTorrent()
 
 bool ourtrack::AddFormToListItem(MainListItem &result)
 {
-  // Заполнение элемента
   result.name         = ui_add.EditName->text();
   result.category     = ui_add.CBoxCategory->currentIndex();
   result.description  = ui_add.EditDescription->document()->toPlainText();
   result.hash         = ui_add.EditHash->text();
   result.size         = ui_add.EditSize->text().toInt();
 
-  // Проверка
+  // Check
   if (result.name.length() < 10)
   {
-    QMessageBox::warning(0, tr("Внимание"), tr("Минимальный размер поля 'Название' 10 символов"));
+    QMessageBox::warning(0, tr("Attention!"), tr("Minimum field size 'Name' 10 symbols"));
     ui_add.EditName->setFocus();
     return false;
   }
   if (!result.category)
   {
-    QMessageBox::warning(0, tr("Внимание"), tr("Выберите категорию"));
+    QMessageBox::warning(0, tr("Attention!"), tr("Select a category"));
     ui_add.CBoxCategory->showPopup();
     return false;
   }
   if (result.description.length() < 100)
   {
-    QMessageBox::warning(0, tr("Внимание"), tr("Минимальный размер поля 'Описание' 100 символов"));
+    QMessageBox::warning(0, tr("Attention!"), tr("Minimum field size 'Description' 100 symbols"));
     ui_add.EditDescription->setFocus();
     return false;
   }
   if (!result.hash.length())
   {
-    QMessageBox::warning(0, tr("Внимание"), tr("Hash не введен"));
+    QMessageBox::warning(0, tr("Attention!"), tr("Hash is not entered"));
     ui_add.EditHash->setFocus();
     return false;
   }
   if (!result.size)
   {
-    QMessageBox::warning(0, "Внимание", tr("Некорректный размер файла"));
+    QMessageBox::warning(0, tr("Attention!"), tr("Uncorrect file size"));
     ui_add.EditSize->setFocus();
     return false;
   }
@@ -89,22 +89,22 @@ bool ourtrack::TemplateLoad()
   if (snd == ui_add.ButtonVideoTemplate)
   {
     filename = "video.html";
-    ui_add.CBoxCategory->setCurrentIndex(categories.indexOf("Видео"));
+    ui_add.CBoxCategory->setCurrentIndex(categories.indexOf(tr("Video")));
   }
   else if (snd == ui_add.ButtonAudioTemplate)
   {
     filename = "audio.html";
-    ui_add.CBoxCategory->setCurrentIndex(categories.indexOf("Аудио"));
+    ui_add.CBoxCategory->setCurrentIndex(categories.indexOf(tr("Audio")));
   }
   else if (snd == ui_add.ButtonGameTemplate)
   {
     filename = "game.html";
-    ui_add.CBoxCategory->setCurrentIndex(categories.indexOf("Игры"));
+    ui_add.CBoxCategory->setCurrentIndex(categories.indexOf(tr("Games")));
   }
   else if (snd == ui_add.ButtonSoftTemplate)
   {
     filename = "soft.html";
-    ui_add.CBoxCategory->setCurrentIndex(categories.indexOf("Софт"));
+    ui_add.CBoxCategory->setCurrentIndex(categories.indexOf(tr("Soft")));
   }
 
   QFile f(TEMPLATE_PATH + filename);
@@ -123,7 +123,7 @@ bool ourtrack::TemplateLoad()
 
 void ourtrack::OpenDialogTorrent()
 {  
-	QString fileName = QFileDialog::getOpenFileName(0, tr("Выберите торрент-файл"),
+	QString fileName = QFileDialog::getOpenFileName(0, tr("Select torrent file"),
                                                      "",
                                                      tr("Torrents (*.torrent);; All files (*.*)"),
                                                      0,

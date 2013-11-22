@@ -30,42 +30,42 @@ public:
   ~ourtrack();
   
 public slots:
-  // Взаимодействие с UI
+  // UI
   void ResultItemActivated(QTableWidgetItem *item);
   void linkClickedDownload(const QUrl&);
-  bool TemplateLoad();     // Загружаем шаблон новых торрентов
-  void OpenDialogTorrent(); // Выбор торрент файла
+  bool TemplateLoad();
+  void OpenDialogTorrent();
   void AddTorrentFormOpen();
   void AddTorrent();
   void GetLastTorrent();
-  // Взаимодействие с сервером
+  // Send to server
   void SendFindQuery();
 
-  // Разбор ответа от сервера
-  void DissectServerAnswer(QByteArray *data);
+  // Recv from server and dissect
+  void DissectServerResponse(QByteArray *data);
 
 private:
   
-  // Список элементов поисковой выдачи
+  // List elements search response
   QVector<MainListItem> items;
-  // Список категорий
+  // Category list
   QStringList           categories;
   
-  // Пользовательский интерфейс
+  // User Interface
   Ui::ourtrackClass     ui_main;
   Ui::addtorrentClass   ui_add;
   QWidget               *add_form;
   
 
-  // Работа с сетью
+  // Network
   Connection            conn;
 
-  // Методы
-  QString     GetDescHtml(const int num);                     // Генерация html из элемента вектора по номеру
-  QByteArray  Serialize(const QVector<MainListItem> &items);  // Сериализация предметов списка
-  void        DeSerialize(const QByteArray &buffer);          // Десериализация предметов списка
-  void        ShowList();                                     // Вывод вектора поисковой выдачи в tableView
-  bool        AddFormToListItem(MainListItem &result);        // Собираем информацию с формы добавления
+  // Methods
+  QString     GetDescHtml(const int num);                     // Generation html by id
+  QByteArray  Serialize(const QVector<MainListItem> &items);  // Serialization
+  void        DeSerialize(const QByteArray &buffer);          // Deserialization
+  void        ShowList();                                     // Out vector (server response) to tableView
+  bool        AddFormToListItem(MainListItem &result);        // Get info from add_form to MainListItem
   void        getTorrentInfo(const QString &torrentFile, QByteArray &infoHash, quint64 &filesLen);
 };
     

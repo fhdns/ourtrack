@@ -1,10 +1,10 @@
 <RCC>
     <qresource prefix="/ourtrack">
-        <file>camera.png</file>
-        <file>explorer.png</file>
-        <file>key.png</file>
-        <file>download.png</file>
-        <file>like-icon.png</file>
-        <file>discription_icon.gif</file>
+        <file>Images/camera.png</file>
+        <file>Images/discription_icon.gif</file>
+        <file>Images/download.png</file>
+        <file>Images/explorer.png</file>
+        <file>Images/key.png</file>
+        <file>Images/like-icon.png</file>
     </qresource>
 </RCC>

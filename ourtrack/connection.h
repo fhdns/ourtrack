@@ -25,23 +25,23 @@ private:
   bool ConnectToServer();
   void DisconnectFromServer();
 
-  // Буффер, в который записывается ответ от сервера
+  // Buffer for server response
   QByteArray data;
 
-  // Работа с сетью
+  // Work with network
   QTcpSocket            *socket;
-  ProxyServer           *proxy_srv;   // Модуль работы с прокс-сервером
+  ProxyServer           *proxy_srv;   // for anonymous proxy server
   
-  // Подключение к серверу
-  // Доступные адреса расположения сервера (из файла SERVER_HOSTS_PATH)
+  // Connecting to server
+  // avaiable addr servers (from SERVER_HOSTS_PATH)
   struct host_info
   {
     QString host;
     quint64 port;
   };
-  QVector<host_info> avaible_hosts;
-  host_info          GetRandomHost();          // Выбирает случайный адрес из списка hosts.ini  
-  bool               ConfLoad();               // Загрузить список хостов 
+  QVector<host_info> avaiable_hosts;
+  host_info          GetRandomHost();          // from hosts.ini  
+  bool               ConfLoad();               // load hosts.ini
 };
 
 #endif // CONNECTION_H

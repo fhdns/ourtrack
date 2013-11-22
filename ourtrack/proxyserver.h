@@ -17,7 +17,7 @@ public:
   ProxyServer(QTcpSocket *sock, QObject *parent = 0);
   ~ProxyServer();
 
-  // Управление прокси-сервером
+  // Proxy-srv control
   bool  start();
   bool  stop();
 
